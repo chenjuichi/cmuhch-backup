@@ -22,116 +22,89 @@ export default {
 
   mounted() {
     //this.initTimer();
-    this.root = document.documentElement;
+    //this.root = document.documentElement;
   },
 
   data() {
     return {
       timer: null,
-      time: 2,
-      show: true,
+      
       icon_color: 'primary',
-
-      defaults: {
-        title: 'undefined title',
-        body: 'undefined body',
-        timeout: 5 
-      },
 
       //content: [],
       content: {
         title: '',
         type: '',
         body: '',
-        timeout: 0,
+        timeout: 3,
+      },
+      defaultContent: {
+        title: 'Hello',
+        type: '',
+        body: '',
+        timeout: 3,
       },
     };
   },
 
   watch: {
     'content.type': function () {
-      if (this.content.type=='info') {
-        this.root.style.setProperty("--bg", "#008184");
-        this.root.style.setProperty("--text", "#ffffff");
-        this.icon_color="#ffffff"
+      console.log("tost type: ", this.content.type, (this.content.type=="info"))
+      let bg = this.content.type=="info" ? "#008184" : "#f5c0d0";
+      let txtColor = this.content.type=="info" ? "#ffffff" : "#000000";
+      let iconColor = this.content.type=="info" ? "#ffffff" : "#adadad";
+
+      document.documentElement.style.setProperty("--bg", bg);
+      document.documentElement.style.setProperty("--txt", txtColor);
+      this.icon_color = iconColor
+      /*
+      let th=this;
+      console.log("toaster type: ", th.content.type);
+      if (th.content.type=='info') {
+        document.documentElement.style.setProperty("--bg", "#008184");
+        document.documentElement.style.setProperty("--text", "#ffffff");
+        th.icon_color="#ffffff"
       }
-      if (this.content.type=='error') {
-        this.root.style.setProperty("--bg", "#f5c0d0");
-        this.root.style.setProperty("--text", "#000000");
-        this.icon_color="#adadad"
+      if (th.content.type=='error') {
+        document.documentElement.style.setProperty("--bg", "#f5c0d0");
+        document.documentElement.style.setProperty("--text", "#000000");
+        th.icon_color="#adadad"
       }
+      */
     }  
   },
 
   created() {
-    //console.log("1 toster:", this.Body)
     this.content.title=this.Title;
+
     this.content.type=this.Type;
     this.content.body=this.Body;
-    //console.log("2 toster:", this.content.body)
+    
     this.content.timeout=parseInt(this.Timeout);    
-    //this.add({ title: this.Title, type: this.Type, body: this.Body, timeout: parseInt(this.Timeout) })
   },
 
   beforeDestroy () {
-    //clearInterval(this.timer);
+    clearInterval(this.timer);  //取消setInterval所重複執行的動作
   },
 
   methods: {
-    initTimer() {
-      //this.time=3;
-      this.timer=setInterval(this.countdown, 1000);
+    initTimer() { 
+      this.timer=setInterval(this.countdown, 1000); //定期(每秒)去執行countdown
     },
 
     countdown() {
-      //this.time--;
-      this.timeout--;
-      //if (this.time==0) {
-      if (this.timeout==0) {
+      this.content.timeout--;
+
+      if (this.content.timeout == 0) {
         clearInterval(this.timer);
-        //this.show=false;
-        this.remove(0);
+        this.remove();
       }
-    },
-
-    add(params) {
-      params.created = Date.now();
-      //params.id = Math.random();
-      params.id = 0;
-
-      //console.log("toaster params: ", params);
-      
-      //params.expire = setTimeout(() => {this.remove(params.id);}, params.timeout * 1000);
-      //params.expire = setTimeout(() => {this.countdown();}, params.timeout * 1000);
-
-      console.log("params: ", params)
-      this.content = Object.assign({}, params);
     },
 
     remove() {
-      //this.content = {};
+      this.content = Object.assign({}, this.defaultContent);
       this.$emit('removeToaster', false);  
     },
-
-    //index(id) {
-    //  for (let key in this.content) {
-    //    if (id === this.content.id) {
-    //      return key;
-    //    }
-    //  }
-    //},
-    /*
-    type(type) {
-      switch (type) {
-        case 'error':
-          return 'error';
-        case 'success':
-          return 'success';
-        case 'info':
-          return 'info';
-      }
-    },
-    */
   },
 };
 </script>
@@ -160,8 +133,8 @@ export default {
 .block {
   text-align: center;
   font-weight: 600;
-  color: var(--text);
-  background-color: var(--bg);
+  color: var(--text) !important;
+  background-color: var(--bg) !important;
   margin: 0;
   top: 50%;
 }

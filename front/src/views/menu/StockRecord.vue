@@ -30,7 +30,7 @@
                 <v-toolbar-title>庫存記錄查詢</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
-                <v-text-field v-model="search" label="請輸入關鍵字" class="style-1"></v-text-field>
+                <v-text-field v-model="search" label="關鍵字查詢" class="style-1"></v-text-field>
 
                 <v-btn color="primary" class="mt-n1 mr-15 mx-auto" @click="exportToExcel">
                   <v-icon left>mdi-microsoft-excel</v-icon>
@@ -211,12 +211,6 @@ export default {
       userData.setting_items_per_page = this.pagination.itemsPerPage;
       localStorage.setItem('loginedUser', JSON.stringify(userData));
     };
-
-    let removedEl=['全部'];
-    for (let i = 0; i < this.desserts.length; i++) {
-      removedEl.push(this.desserts[i].stkRecord_supplier)
-    }    
-    this.items = [...new Set(removedEl)];
   },
 
   data () {
@@ -280,7 +274,7 @@ export default {
       },
 
       dessertsDisplay: [],
-
+      temp_desserts: [],
       desserts: [
         /*
         {
@@ -548,6 +542,14 @@ export default {
       if (val) {
         this.desserts = Object.assign([], this.temp_desserts);
         this.dessertsDisplay = Object.assign([], this.desserts);
+        //在v-select的供應商資料
+        let removedEl=['全部'];
+        for (let i = 0; i < this.desserts.length; i++) {
+          removedEl.push(this.desserts[i].stkRecord_supplier)
+        } 
+        //console.log("suppliers: ", removedEl);
+        this.items = [...new Set(removedEl)];
+
         this.load_SingleTable_ok=false;
       }
     },

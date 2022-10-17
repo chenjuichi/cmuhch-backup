@@ -1,5 +1,11 @@
-/front/src/view/menu/*copy*.vue
+/front/src/views/menu/*copy*.vue
 /front/src/components/*copy*.vue
 /front/node_modules/
 /front/public/
 /front/dist/
+/server/*copy*.py
+/server/table/*copy*.py
+/server/database/*copy*.py
+/server/ajax/*copy*.py
+/server/common/*.*
+/server/resource/*.*

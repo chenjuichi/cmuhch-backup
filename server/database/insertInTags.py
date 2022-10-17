@@ -20,9 +20,9 @@ intag_date = ['111/06/01', '111/05/01', '111/05/01', '111/04/01', '111/04/01',
               '111/03/01', '111/06/01', '111/06/01', '111/07/01', '111/08/01', '111/08/01'
               ]
 printMark = [False, False, False, False, False,
-             False, False, False, False, True, True]
+             True, True, True, True, True, True]
 stockinMark = [False, False, False, False, False,
-               False, False, False, False, True, True]
+               True, True, True, True, True, True]
 
 
 s = Session()

@@ -37,9 +37,10 @@ print("system Lan ip:" + host_ip_for_lan, ", and wifi ip:" + host_ip_for_wifi)
 
 # --------------------------
 
-# host_ip = '192.168.0.14'    # for home #//////2/2-
-host_ip = '192.168.32.178'  # for zh  #//////2/2-
+host_ip = '192.168.0.14'    # for home #//////2/2-
+# host_ip = '192.168.32.178'  # for zh  #//////2/2-
 # host_ip = '192.168.43.117'  # for mobile  #//////2/2-
+
 app.config['MQTT_BROKER_URL'] = host_ip
 app.config['MQTT_BROKER_PORT'] = 1883
 app.config['MQTT_CLIENT_ID'] = 'cmu_hch_mqtt'

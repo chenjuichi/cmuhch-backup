@@ -657,15 +657,6 @@ div.v-toolbar__title {
   font-family: "Noto Sans TC", "Microsoft Yahei", "微軟雅黑", sans-serif;
 }
 
-/*
-th.text-start{
-  font-size: 24px;  
-}
-
-@mixin name {
-  
-}
-*/
 ::v-deep .v-data-table-header {
   background-color: #7DA79D;
 }
@@ -721,13 +712,19 @@ small.msgErr {
 }
 
 ::v-deep .add_modalbox > .v-card {
-    //background: rgba(170, 209, 183, 0.37);
+    background: rgba(170, 209, 183, 0.37);
     border-radius: 16px;
-    //box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    //backdrop-filter: blur(4.8px);
-    //-webkit-backdrop-filter: blur(4.8px);
-    //border: 1px solid rgba(170, 209, 183, 1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.8px);
+    -webkit-backdrop-filter: blur(4.8px);
+    border: 1px solid rgba(170, 209, 183, 1);
+}
 
-    border: 3px solid rgba(170, 209, 183, 0.5);
+::v-deep div[role=combobox].v-input__slot {
+    background: rgba(170, 209, 183, 0.37) !important;
+}
+
+::v-deep div[role=listbox].v-list.v-select-list {
+  background: rgba(170, 209, 183, 1) !important;
 }
 </style>

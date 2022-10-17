@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
 from sqlalchemy import distinct
@@ -12,7 +14,41 @@ updateTable = Blueprint('updateTable', __name__)
 # ------------------------------------------------------------------
 
 
+def modify_InTags_grid(_id, _station, _layout, _pos, _reagID):
+    return_gridID = 0  # 相同儲位
+
+    s = Session()
+    target_grid = s.query(Grid).filter_by(
+        station=_station, layout=_layout, pos=_pos).first()
+
+    if not target_grid:
+        # new grid, 建立新的儲位
+        new_grid = Grid(station=_station, layout=_layout, pos=_pos)
+        s.add(new_grid)
+        s.flush()
+        current_reagent = s.query(Reagent).filter_by(reag_id=_reagID).first()
+        current_reagent.grid_id = new_grid.id
+        s.commit()
+        return_gridID = new_grid.id
+    elif not (target_grid.id == _id):  # target grid不等於既有的儲位, 就是不同儲位
+        reagent_count = s.query(Reagent).filter_by(
+            grid_id=target_grid.id).count()
+
+        if reagent_count >= 1:  # 已經放其他試劑, 同一儲位不能放不同試劑
+            print("hello, another same records...")
+            return_gridID = -1  # 同一儲位, 不能放相同試劑
+        else:
+            return_gridID = target_grid.id  # 空儲位, 沒有放其他試劑
+
+    s.close()
+
+    return return_gridID
+
+# ------------------------------------------------------------------
+
 # update password from user table some data
+
+
 @updateTable.route("/updatePassword", methods=['POST'])
 def update_password():
     print("updatePassword....")
@@ -242,7 +278,7 @@ def update_product():
 
 
 # from department table update some data by id
-@ updateTable.route("/updateDepartment", methods=['POST'])
+@updateTable.route("/updateDepartment", methods=['POST'])
 def update_department():
     print("updateDepartment....")
     request_data = request.get_json()
@@ -342,7 +378,7 @@ def update_grid():
 
 
 # from reagent table update some data by id
-@ updateTable.route("/updatePermissions", methods=['POST'])
+@updateTable.route("/updatePermissions", methods=['POST'])
 def update_permissions():
     print("updatePermissions....")
     request_data = request.get_json()
@@ -380,7 +416,7 @@ def update_permissions():
 
 
 # update intag's stockOut_temp_count and outtag's count data
-@ updateTable.route("/updateStockOutAndStockInData", methods=['POST'])
+@updateTable.route("/updateStockOutAndStockInData", methods=['POST'])
 def update_StockOut_and_StockIn_data():
     print("updateStockOutAndStockInData....")
     request_data = request.get_json()
@@ -415,4 +451,52 @@ def update_StockOut_and_StockIn_data():
 
     return jsonify({
         'status': return_value,
+    })
+
+
+@updateTable.route("/updateStockInDataByInv", methods=['POST'])
+def update_StockIn_data_by_Inv():
+    print("updateStockInDataByInv....")
+
+    request_data = request.get_json()
+
+    _blocks = request_data['blocks']
+    _count = request_data['count']
+    temp = len(_blocks)
+    data_check = (True, False)[_count == 0 or temp == 0 or _count != temp]
+
+    return_value = True  # true: export into excel成功
+    return_message = ''
+    if not data_check:  # false: 資料不完全
+        return_value = False
+        return_message = '資料不完整.'
+
+    if return_value:
+        s = Session()
+
+        for obj in _blocks:
+            if obj['isGridChange']:  # 儲位有變更
+                gridID = modify_InTags_grid(obj['stockInTag_grid_id'], int(obj['stockInTag_grid_station']),
+                                            int(obj['stockInTag_grid_layout']), int(obj['stockInTag_grid_pos']), int(obj['stockInTag_reagID']))
+                print("return grid id: ", gridID)
+                intag = s.query(InTag).filter_by(id=obj['intag_id']).first()
+
+                if gridID == -1:
+                    return_value = False  # 已經放其他試劑, 儲位重複
+                    return_message = '儲位重複.'
+                if gridID > 0:  # 新儲位或空儲位
+                    intag.grid_id = gridID
+                intag.count = int(obj['stockInTag_cnt_inv_mdf'])      # 修改在庫數資料
+                # 修改盤點數資料
+                intag.count_inv_modify = int(obj['stockInTag_cnt_inv_mdf'])
+                intag.comment = obj['stockInTag_comment']     # 修改盤點說明資料
+                intag.updated_at = datetime.datetime.utcnow()  # 資料修改的時間
+
+                s.commit()
+
+        s.close()
+
+    return jsonify({
+        'status': return_value,
+        'message': return_message,
     })

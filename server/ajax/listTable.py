@@ -30,7 +30,7 @@ def list_users():
                 'emp_id': user['emp_id'],
                 'emp_name': user['emp_name'],
                 'emp_dep': dep_item.dep_name,
-                # 'emp_perm': perm_item.auth_code
+                'emp_perm': perm_item.auth_code  # for inventory.vue
             }
             _user_results.append(_user_object)
     s.close()
@@ -362,7 +362,7 @@ def list_stockout_data():
                 'stockOutTag_InID': _inTag.id,
                 'stockOutTag_ID': outtag.id,
                 'stockOutTag_isPrinted': outtag.isPrinted,
-                'stockOutTag_isStockin': outtag.isStockin,
+                'stockOutTag_isStockin': outtag.isStockout,
             }
 
             _results.append(_obj)
@@ -468,20 +468,33 @@ def list_inventorys():
             #_supplier = s.query(Supplier).filter_by(id=_reagent.super_id).first()
             _grid = s.query(Grid).filter_by(id=intag.grid_id).first()
 
+            k1 = ''
+            if _reagent.reag_temp == 0:  # 0:室溫、1:2~8度C、2:-20度C
+                k1 = '室溫'
+            if _reagent.reag_temp == 1:
+                k1 = '2~8度C'
+            if _reagent.reag_temp == 2:
+                k1 = '-20度C'
+
             _obj = {
                 'id': temp_kk,
                 'stockInTag_reagID': _reagent.reag_id,          # 資材碼
                 'stockInTag_reagName': _reagent.reag_name,      # 品名
                 'stockInTag_reagPeriod': _reagent.reag_period,  # 效期
-                'stockInTag_reagTemp': _reagent.reag_period,    # 保存溫度
-                # 'stockInTag_supplier': ,  # 供應商
+                'stockInTag_reagTemp': k1,    # 保存溫度
                 'stockInTag_Date': intag.intag_date,    # 入庫日期
                 'stockInTag_Employer': _user.emp_name,  # 入庫人員
                 'stockInTag_grid': _grid.station + '站' + _grid.layout + '層' + _grid.pos + '格',
+                'stockInTag_grid_id': _grid.id,
+                'stockInTag_grid_station': _grid.station,
+                'stockInTag_grid_layout': _grid.layout,
+                'stockInTag_grid_pos': _grid.pos,
                 # 在庫數量
                 # 'stockInTag_cnt': str(intag.count) + _reagent.reag_In_unit,
                 'stockInTag_cnt': str(intag.count),
-                'stockInTag_comment': '',
+                'stockInTag_cnt_inv_mdf': str(intag.count_inv_modify),
+                'stockInTag_comment': intag.comment,
+                'intag_id': intag.id,
             }
 
             _results.append(_obj)

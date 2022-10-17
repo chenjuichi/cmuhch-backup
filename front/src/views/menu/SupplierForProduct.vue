@@ -16,7 +16,7 @@
               <v-toolbar-title>產品類別資料</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px">
+              <v-dialog v-model="dialog" max-width="500px" content-class="add_modalbox">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon left dark>mdi-table-plus</v-icon>
@@ -463,5 +463,14 @@ small.msgErr {
 
 ::v-deep .v-data-table > .v-data-table__wrapper > table > thead > tr > th:nth-last-child(1) {
   text-align: start !important;
+}
+
+::v-deep .add_modalbox > .v-card {
+    background: rgba(170, 209, 183, 0.37);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.8px);
+    -webkit-backdrop-filter: blur(4.8px);
+    border: 1px solid rgba(170, 209, 183, 1);
 }
 </style>

@@ -345,9 +345,11 @@ class InTag(BASE):
     isPrinted = Column(Boolean, default=False)  # false: 標籤尚未列印, true:已列印
     isStockin = Column(Boolean, default=False)  # false:尚未入庫, true:已入庫
 
+    count_inv_modify = Column(Integer, default=0)  # 盤點數
+
     comment = Column(String(80))  # 盤點說明
 
-    updated_at = Column(DateTime, onupdate=datetime.utcnow())
+    updated_at = Column(DateTime, onupdate=datetime.utcnow())  # 資料修改的時間
 
     create_at = Column(DateTime, server_default=func.now())
 

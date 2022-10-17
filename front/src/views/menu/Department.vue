@@ -16,7 +16,7 @@
               <v-toolbar-title>組別資料</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px">
+              <v-dialog v-model="dialog" max-width="500px" content-class="add_modalbox">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon left dark>mdi-table-plus</v-icon>
@@ -51,7 +51,7 @@
                     <!--<v-btn color="blue darken-1" text @click="save">儲存</v-btn>-->
                     <v-btn color="blue darken-1" text @click="save" :disabled='checkDataForSaveButton'>確定</v-btn>
                     <v-tooltip v-model="tosterOK" bottom :position-x="toster_pos_x" :position-y="toster_pos_y" color="error">
-                      <span>資材碼重複!</span>
+                      <span>組別資料重複!</span>
                     </v-tooltip>
                   </v-card-actions>
                 </v-card>
@@ -147,7 +147,7 @@ export default {
 
     tosterOK: false,
     toster_pos_x: 1000,
-    toster_pos_y: 400,
+    toster_pos_y: 350,
     toster_delay:3,
 
     depErrMsg: '',
@@ -465,5 +465,14 @@ small.msgErr {
   padding-left: 8px !important;
   padding-right: 0px !important;
   text-align: center !important;
+}
+
+::v-deep .add_modalbox > .v-card {
+    background: rgba(170, 209, 183, 0.37);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.8px);
+    -webkit-backdrop-filter: blur(4.8px);
+    border: 1px solid rgba(170, 209, 183, 1);
 }
 </style>

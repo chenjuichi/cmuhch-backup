@@ -33,7 +33,7 @@
                 <v-spacer></v-spacer>
                 <!--<v-text-field v-model="search" label="Search (UPPER CASE ONLY)" class="mx-4"></v-text-field>-->
                 <!--<v-text-field v-model="search" label="查詢" class="mx-4"></v-text-field>-->
-                <v-text-field v-model="search" label="請輸入關鍵字" class="style-1"></v-text-field>
+                <v-text-field v-model="search" label="關鍵字查詢" class="style-1"></v-text-field>
 
                 <v-btn color="primary" class="mt-n1 mr-15 mx-auto" @click="exportToExcel">
                   <v-icon left>mdi-microsoft-excel</v-icon>
@@ -60,7 +60,7 @@
                   >
                     <template v-slot:activator="{ on }">
                       <v-text-field
-                        label="領用開始期間"
+                        label="領用開始日期查詢"
                         prepend-icon="event"
                         readonly
                         :value="fromDateDisp"
@@ -90,7 +90,7 @@
                   >
                     <template v-slot:activator="{ on }">
                       <v-text-field
-                        label="領用截止期間"
+                        label="領用截止日期查詢"
                         prepend-icon="event"
                         readonly
                         :value="fromDateDispEnd"
