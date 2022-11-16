@@ -2,510 +2,68 @@
 <v-app>
   <v-container fluid>
     <v-row align="center" justify="center" v-if="currentUser.perm == 1 || currentUser.perm == 2">
-      <v-card width="92vw" class="pa-md-4 mx-lg-auto">
+      <v-card width="93vw" class="pa-md-4 mx-lg-auto">
         <v-toolbar flat>
-          <v-toolbar-title>儲位Led資料設定</v-toolbar-title>
+          <v-toolbar-title>儲位燈條資料設定</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
+          <!-- -->
+          <v-dialog v-model="dialog" max-width="600px" :content-class='temp_css'>
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">儲位燈條編號</span>
+              </v-card-title>
+
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" md="4">
+                      <div style="color: #007bff; font-weight: 800;">站別</div>
+                      <vue-numeric-input  v-model="editedItem.grid_station" :min="1" :max="3" :step="1"></vue-numeric-input>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div style="color: #007bff; font-weight: 800;">層別</div>
+                      <vue-numeric-input  v-model="editedItem.grid_layout" :min="1" :max="5" :step="1"></vue-numeric-input>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div style="color: #007bff; font-weight: 800;">格位編號</div>
+                      <vue-numeric-input  v-model="editedItem.grid_pos" :min="1" :max="10" :step="1"></vue-numeric-input>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeCard">取消</v-btn>
+                <v-btn color="blue darken-1" text @click="confirmCard">確定</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <!-- -->
+          <v-btn color="primary" class="mt-n1 mr-15 mx-auto" style="position: relative; left: 40px;" elevation="5"  @click="connectMQTT">
+            <v-icon>mdi-lan-connect</v-icon>
+            連線測試
+          </v-btn>
+
+          <v-btn color="primary" class="mt-n1 mr-15 mx-auto" elevation="5" @click="saveData">
+            <v-icon>mdi-content-save-check</v-icon>
+            確定
+          </v-btn>
         </v-toolbar>
-
         <v-tabs vertical>
-          <v-tab>
-            <v-icon left>mdi-account</v-icon>
-            第1站料架
+          <v-tab
+            style="font-size:16px; font-weight:600; width: 140px;"
+            v-for="(item, index) in items" :key="item.tab"
+            @click="nextTabContent(index)">
+            <v-icon left>mdi-library-shelves</v-icon>
+            {{ item.tab }} ({{ tab_totals[index] }})
           </v-tab>
-          <v-tab>
-            <v-icon left>mdi-lock</v-icon>
-            第2站料架
-          </v-tab>
-          <v-tab>
-            <v-icon left>mdi-access-point</v-icon>
-            第3站料架
-          </v-tab>
-
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text id="app_tab_1" ref="card_text">
-                <!--<div v-for="(k, index) in 5">-->
-
-                  <!-- seg1 -->
-                  <div class="container_tab1" style="width: 885px; padding: 0px 5px 0px 5px; border-radius: 10px; height:55px;">
-                    <div style="color: white; font-size: 14px; text-align: center;">
-                      <p
-                        v-for="field in selectedLeds.led1"
-                        style="width: 25px; height: 25px; margin: 0px 2px 0px 2px; display:inline; float:left;"
-                        v-model="field.value">
-                        {{ field.value }}
-                      </p>
-                    </div>
-                    <div
-                      class="dot"
-                      :id="`light_${index}`"
-                      style="width: 25px; height: 25px; margin: 0px 2px 0px 2px;"
-                      v-for="(n, index) in 30"
-                    >
-                    </div>
-                  </div>
-
-                  <v-row style="margin-bottom: 0px; height: 55px; max-height: 55px;">
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                    <v-col class="pl-6 pr-2" cols="12" md="8">
-                      <v-range-slider
-                        v-model="ranges.range1"
-                        @click="eraseErrMsg(0)"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="ranges.range1[0]"
-                            :max="max"
-                            :min="min"
-                            @focus="eraseErrMsg(0)"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range1[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(ranges.range1, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="ranges.range1[1]"
-                            :max="max"
-                            :min="min"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range1[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @focus="eraseErrMsg(0)"
-                            @change="$set(ranges.range1, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
-                      <small class="msgErr" v-text= "rangErrMsg"></small>
-                    </v-col>
-                    <v-col class="mt-1 pr-0 pl-0" cols="12" md="1">
-                          <v-text-field
-                            :value="segment_values[0]"
-                            :max="max"
-                            :min="min"
-
-                            class="mt-0 pt-0 centered-input"
-                            v-model="segment_values[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 50px; border-radius: 5px; border: 1px solid #000000;"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col class="mt-1 pr-2 pl-0" cols="12" md="1">
-                      <v-btn
-                        small
-                        class="ml-0 mr-2 mt-2"
-                        color="primary"
-                        @click="toggleLed(0)">
-                        <v-icon>mdi-gesture-tap</v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                  </v-row>
-
-                  <!-- seg2 -->
-
-                  <div class="container_tab1" style="width: 885px; padding: 0px 5px 0px 5px; border-radius: 10px; height:55px;">
-                    <div style="color: white; font-size: 14px; text-align: center;">
-                      <p
-                        v-for="field in selectedLeds.led2"
-                        style="width: 25px; height: 25px; margin: 0px 2px 0px 2px; display:inline; float:left;"
-                        v-model="field.value">
-                        {{ field.value }}
-                      </p>
-                    </div>
-                    <div
-                      class="dot"
-                      :id="`light_${index}`"
-                      style="width: 25px; height: 25px; margin: 0px 2px 0px 2px;"
-                      v-for="(n, index) in 30"
-                    >
-                    </div>
-                  </div>
-
-                  <v-row style="margin-bottom: 0px; height: 55px; max-height: 55px;">
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                    <v-col class="pl-6 pr-2" cols="12" md="8">
-                      <v-range-slider
-                        v-model="ranges.range2"
-                        @click="eraseErrMsg(1)"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="ranges.range2[0]"
-                            :max="max"
-                            :min="min"
-                            @focus="eraseErrMsg(1)"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range2[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(ranges.range2, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="ranges.range2[1]"
-                            :max="max"
-                            :min="min"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range2[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @focus="eraseErrMsg(1)"
-                            @change="$set(ranges.range2, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
-                      <small class="msgErr" v-text= "rangErrMsg"></small>
-                    </v-col>
-                    <v-col class="mt-1 pr-0 pl-0" cols="12" md="1">
-                          <v-text-field
-                            :value="segment_values[1]"
-                            :max="max"
-                            :min="min"
-
-                            class="mt-0 pt-0 centered-input"
-                            v-model="segment_values[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 50px; border-radius: 5px; border: 1px solid #000000;"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col class="mt-1 pr-2 pl-0" cols="12" md="1">
-
-                      <v-btn
-                        small
-                        class="ml-0 mr-2 mt-2"
-                        color="primary"
-                        @click="toggleLed(1)">
-                        <v-icon>mdi-gesture-tap</v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                  </v-row>
-
-
-                  <!-- seg3 -->
-
-                  <div class="container_tab1" style="width: 885px; padding: 0px 5px 0px 5px; border-radius: 10px; height:55px;">
-                    <div style="color: white; font-size: 14px; text-align: center;">
-                      <p
-                        v-for="field in selectedLeds.led3"
-                        style="width: 25px; height: 25px; margin: 0px 2px 0px 2px; display:inline; float:left;"
-                        v-model="field.value">
-                        {{ field.value }}
-                      </p>
-                    </div>
-                    <div
-                      class="dot"
-                      :id="`light_${index}`"
-                      style="width: 25px; height: 25px; margin: 0px 2px 0px 2px;"
-                      v-for="(n, index) in 30"
-                    >
-                    </div>
-                  </div>
-
-                  <v-row style="margin-bottom: 0px; height: 55px; max-height: 55px;">
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                    <v-col class="pl-6 pr-2" cols="12" md="8">
-                      <v-range-slider
-                        v-model="ranges.range3"
-                        @click="eraseErrMsg(2)"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="ranges.range3[0]"
-                            :max="max"
-                            :min="min"
-                            @focus="eraseErrMsg(2)"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range3[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(ranges.range3, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="ranges.range3[1]"
-                            :max="max"
-                            :min="min"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range3[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @focus="eraseErrMsg(2)"
-                            @change="$set(ranges.range3, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
-                      <small class="msgErr" v-text= "rangErrMsg"></small>
-                    </v-col>
-                    <v-col class="mt-1 pr-0 pl-0" cols="12" md="1">
-                          <v-text-field
-                            :value="segment_values[2]"
-                            :max="max"
-                            :min="min"
-
-                            class="mt-0 pt-0 centered-input"
-                            v-model="segment_values[2]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 50px; border-radius: 5px; border: 1px solid #000000;"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col class="mt-1 pr-2 pl-0" cols="12" md="1">
-
-                      <v-btn
-                        small
-                        class="ml-0 mr-2 mt-2"
-                        color="primary"
-                        @click="toggleLed(2)">
-                        <v-icon>mdi-gesture-tap</v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                  </v-row>
-
-                  <!-- seg4 -->
-
-                  <div class="container_tab1" style="width: 885px; padding: 0px 5px 0px 5px; border-radius: 10px; height:55px;">
-                    <div style="color: white; font-size: 14px; text-align: center;">
-                      <p
-                        v-for="field in selectedLeds.led4"
-                        style="width: 25px; height: 25px; margin: 0px 2px 0px 2px; display:inline; float:left;"
-                        v-model="field.value">
-                        {{ field.value }}
-                      </p>
-                    </div>
-                    <div
-                      class="dot"
-                      :id="`light_${index}`"
-                      style="width: 25px; height: 25px; margin: 0px 2px 0px 2px;"
-                      v-for="(n, index) in 30"
-                    >
-                    </div>
-                  </div>
-
-                  <v-row style="margin-bottom: 0px; height: 55px; max-height: 55px;">
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                    <v-col class="pl-6 pr-2" cols="12" md="8">
-                      <v-range-slider
-                        v-model="ranges.range4"
-                        @click="eraseErrMsg(3)"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="ranges.range4[0]"
-                            :max="max"
-                            :min="min"
-                            @focus="eraseErrMsg(3)"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range4[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(ranges.range4, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="ranges.range4[1]"
-                            :max="max"
-                            :min="min"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range4[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @focus="eraseErrMsg(3)"
-                            @change="$set(ranges.range4, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
-                      <small class="msgErr" v-text= "rangErrMsg"></small>
-                    </v-col>
-                    <v-col class="mt-1 pr-0 pl-0" cols="12" md="1">
-                          <v-text-field
-                            :value="segment_values[3]"
-                            :max="max"
-                            :min="min"
-
-                            class="mt-0 pt-0 centered-input"
-                            v-model="segment_values[3]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 50px; border-radius: 5px; border: 1px solid #000000;"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col class="mt-1 pr-2 pl-0" cols="12" md="1">
-
-                      <v-btn
-                        small
-                        class="ml-0 mr-2 mt-2"
-                        color="primary"
-                        @click="toggleLed(3)">
-                        <v-icon>mdi-gesture-tap</v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                  </v-row>
-
-                  <!-- seg5 -->
-
-                  <div class="container_tab1" style="width: 885px; padding: 0px 5px 0px 5px; border-radius: 10px; height:55px;">
-                    <div style="color: white; font-size: 14px; text-align: center;">
-                      <p
-                        v-for="field in selectedLeds.led5"
-                        style="width: 25px; height: 25px; margin: 0px 2px 0px 2px; display:inline; float:left;"
-                        v-model="field.value">
-                        {{ field.value }}
-                      </p>
-                    </div>
-                    <div
-                      class="dot"
-                      :id="`light_${index}`"
-                      style="width: 25px; height: 25px; margin: 0px 2px 0px 2px;"
-                      v-for="(n, index) in 30"
-                    >
-                    </div>
-                  </div>
-
-                  <v-row style="margin-bottom: 0px; height: 55px; max-height: 55px;">
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                    <v-col class="pl-6 pr-2" cols="12" md="8">
-                      <v-range-slider
-                        v-model="ranges.range5"
-                        @click="eraseErrMsg(4)"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="ranges.range5[0]"
-                            :max="max"
-                            :min="min"
-                            @focus="eraseErrMsg(4)"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range5[0]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(ranges.range5, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="ranges.range5[1]"
-                            :max="max"
-                            :min="min"
-                            class="mt-0 pt-0"
-                            v-model="ranges.range5[1]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @focus="eraseErrMsg(4)"
-                            @change="$set(ranges.range5, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
-                      <small class="msgErr" v-text= "rangErrMsg"></small>
-                    </v-col>
-                    <v-col class="mt-1 pr-0 pl-0" cols="12" md="1">
-                          <v-text-field
-                            :value="segment_values[4]"
-                            :max="max"
-                            :min="min"
-
-                            class="mt-0 pt-0 centered-input"
-                            v-model="segment_values[4]"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 50px; border-radius: 5px; border: 1px solid #000000;"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col class="mt-1 pr-2 pl-0" cols="12" md="1">
-
-                      <v-btn
-                        small
-                        class="ml-0 mr-2 mt-2"
-                        color="primary"
-                        @click="toggleLed(4)">
-                        <v-icon>mdi-gesture-tap</v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="px-4" cols="12" md="1"></v-col>
-                  </v-row>
-
-                <!--</div>-->
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text id="app_tab_2">
-                <p>
-                  第2個料架建置中...
-                </p>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-text id="app_tab_3">
-                <p>
-                  第3個料架建置中...
-                </p>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
         </v-tabs>
-
+        <v-card outlined class="mt-1 mx-auto"
+          style="width: 75vw; height:40vw; left: 60px; top: -150px;">
+          <LedStrip :my_object="items[tab_index].content" :my_key="tab_index" @closeLedStrip="getGridData"></LedStrip>
+        </v-card>
       </v-card>
     </v-row>
 
@@ -537,15 +95,17 @@
 
 <script>
 import axios from 'axios';
+import VueNumericInput from 'vue-numeric-input';
+
 import Common from '../../mixin/common.js'
-//import TempText from '../../components/TempText.vue'
+import LedStrip from '../../components/LedStrip.vue'
 
 export default {
   name: 'GridsForLed',
 
-  //components: {
-  //  TempText: TempText,
-  //},
+  components: {
+    LedStrip, VueNumericInput,
+  },
 
   mixins: [Common],
 
@@ -558,8 +118,6 @@ export default {
       //userData.setting_items_per_page = this.pagination.itemsPerPage;
       //localStorage.setItem('loginedUser', JSON.stringify(userData));
     };
-
-    //this.getTabsData();
   },
 
   data() {
@@ -572,10 +130,14 @@ export default {
         //page: 1,
       //},
 
+      dialog: false,
 
-      tab: null,
-      items: ['  料架1  ', '  料架2  ', '  料架3  '],
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      items: [
+        { tab: '第1站料架', content: {} },
+        { tab: '第2站料架', content: {} },
+        { tab: '第3站料架', content: {} },
+      ],
+      tab_index: 0,
 
       rangErrMsg: '',
       errorMessages: {  //for 錯誤訊息
@@ -587,7 +149,7 @@ export default {
       },
       min: 1,
       max: 30,
-      range: [1, 3],
+
       ranges: {     //for slider輸入範圍
         range1: [],
         range2: [],
@@ -616,11 +178,10 @@ export default {
         range4: [],
         range5: [],
       },
-      Leds: [],
-      //segment_value: 1,
+
       segment_values: [], //for輸入segment代號
-      //selectedChips: [],
-      selectedLeds: {   //for數字或'.' , 共30組
+
+      selectedLeds: {   //for顯示數字或'.' , 共30組
         led1: [
         //  value:
         ],
@@ -629,7 +190,7 @@ export default {
         led4: [],
         led5: [],
       },
-      selectedLamps: {  //for燈號
+      selectedLamps: {  //for顯示Led燈號
         led1: [
         //  value:
         ],
@@ -639,15 +200,7 @@ export default {
         led5: [],
       },
 
-      tabs: [],
-      layouts: [],
-
-      segment: [
-      //  seg_id:,
-      //  range0:,
-      //  range1:,
-      ],
-      segments: {     //for segment內的值
+      segments: {     //for在各segment內的值
         segment1: [
       //  seg_id:,
       //  range0:,
@@ -679,20 +232,35 @@ export default {
         segments4: [],
         segments5: [],
       },
-      //segment_width: 44,
-      //light_width: 29,
-      init_id: 1,
 
-      //styleObject: {
-      //  marginRight: 56 + 'px', //init margin-right value
-      //  marginLeft: 56 + 'px',  //init margin-left value
-      //},
+      myObject1: {
+        segs: {},
+        rans: {},
+      },
+      myObject2: {
+        segs: {},
+        rans: {},
+      },
+      myObject3: {
+        segs: {},
+        rans: {},
+      },
+      tab_totals: [],
+
       temp_desserts: [],
 
+      editedItem: {
+        grid_station: 1,
+        grid_layout: 1,
+        grid_seg_id: 1,
+      },
+      defaultItem: {
+        grid_station: 1,
+        grid_layout: 1,
+        grid_seg_id: 1,
+      },
+
       load_SingleTable_ok: false, //for get grids table data
-      slider_data_ok: false,      //for update slider area data
-      slider_led_dig_ok: false,   //for update slider led number
-      slider_led_lamp_ok: false,  //for update slider led lamp
     }
   },
 
@@ -704,118 +272,10 @@ export default {
     load_SingleTable_ok(val) {
       if (val) {
         this.load_SingleTable_ok=false;
+
         this.getTabsData();
-      }
-    },
-
-    slider_data_ok(val) {
-      if (val) {
-        this.slider_data_ok=false;
-
-        this.ranges.range1 = Object.assign([], this.tab1_rans.range1);
-        this.ranges.range2 = Object.assign([], this.tab1_rans.range2);
-        this.ranges.range3 = Object.assign([], this.tab1_rans.range3);
-        this.ranges.range4 = Object.assign([], this.tab1_rans.range4);
-        this.ranges.range5 = Object.assign([], this.tab1_rans.range5);
-
-        let seg_len =this.tab1_segs.segments1.length;   //seg1
-        for (let i=0; i<seg_len; i++) {
-          //console.log("this.tab1_segs.segments1[i][key] :", i, this.tab1_segs.segments1[i]);
-          let obj= {
-            seg_id: this.tab1_segs.segments1[i].seg_id,
-            range0: this.tab1_segs.segments1[i].range0,
-            range1: this.tab1_segs.segments1[i].range1,
-          }
-          this.segments.segment1.push(obj);
-        }
-
-        seg_len =this.tab1_segs.segments2.length;    //seg2
-        for (let i=0; i<seg_len; i++) {
-          //console.log("this.tab1_segs.segments2[i][key] :", i, this.tab1_segs.segments2[i]);
-          let obj= {
-            seg_id: this.tab1_segs.segments2[i].seg_id,
-            range0: this.tab1_segs.segments2[i].range0,
-            range1: this.tab1_segs.segments2[i].range1,
-          }
-          this.segments.segment2.push(obj);
-        }
-
-        seg_len =this.tab1_segs.segments3.length;    //seg3
-        for (let i=0; i<seg_len; i++) {
-          //console.log("this.tab1_segs.segments3[i][key] :", i, this.tab1_segs.segments3[i]);
-          let obj= {
-            seg_id: this.tab1_segs.segments3[i].seg_id,
-            range0: this.tab1_segs.segments3[i].range0,
-            range1: this.tab1_segs.segments3[i].range1,
-          }
-          this.segments.segment3.push(obj);
-        }
-
-        seg_len =this.tab1_segs.segments4.length;    //seg4
-        for (let i=0; i<seg_len; i++) {
-          //console.log("this.tab1_segs.segments4[i][key] :", i, this.tab1_segs.segments4[i]);
-          let obj= {
-            seg_id: this.tab1_segs.segments4[i].seg_id,
-            range0: this.tab1_segs.segments4[i].range0,
-            range1: this.tab1_segs.segments4[i].range1,
-          }
-          this.segments.segment4.push(obj);
-        }
-
-        seg_len =this.tab1_segs.segments5.length; //seg5
-        for (let i=0; i<seg_len; i++) {
-          //console.log("this.tab1_segs.segments5[i][key] :", i, this.tab1_segs.segments5[i]);
-          let obj= {
-            seg_id: this.tab1_segs.segments5[i].seg_id,
-            range0: this.tab1_segs.segments5[i].range0,
-            range1: this.tab1_segs.segments5[i].range1,
-          }
-          this.segments.segment5.push(obj);
-        }
-
-        this.segment_values[0]=this.ranges.range1[0];
-        this.segment_values[1]=this.ranges.range2[0];
-        this.segment_values[2]=this.ranges.range3[0];
-        this.segment_values[3]=this.ranges.range4[0];
-        this.segment_values[4]=this.ranges.range5[0];
-
-        this.slider_led_dig_ok=true;
-      }
-    },
-
-    slider_led_dig_ok(val) {
-      if (val) {
-        this.slider_led_dig_ok=false;
-
-        for (let index=0; index<5; index++) {
-          let seg_len =this.segments[Object.keys(this.segments)[index]].length;   //seg1
-          for (let i=0; i<seg_len; i++) {
-            let start_p=this.segments[Object.keys(this.segments)[index]][i].range0-1
-            this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = this.segments[Object.keys(this.segments)[index]][i].seg_id;
-          }
-        }
-
-        this.slider_led_lamp_ok=true;
-      }
-    },
-
-    slider_led_lamp_ok(val) {
-      if (val) {
-        this.slider_led_lamp_ok=false;
-
-        let els = document.getElementsByClassName('container_tab1');
-        for (let i=0; i<5; i++) {
-          for (let j=this.ranges[Object.keys(this.ranges)[i]][0]; j<this.ranges[Object.keys(this.ranges)[i]][1]+1; j++) {
-            let dot = els[i].childNodes[j];
-            //console.log("node name: ", dot);
-
-            this.selectedLamps[Object.keys(this.selectedLamps)[i]][j-1].value = !this.selectedLamps[Object.keys(this.selectedLamps)[i]][j-1].value;
-            let temp_togg = this.selectedLamps[Object.keys(this.selectedLamps)[i]][j-1].value ? (dot.className += " on") : (dot.className = "dot");
-          }
-        }
-      }
-    },
-
+      } //end if condition
+    },  //end load_SingleTable_ok()
   },
 
   created () {
@@ -827,19 +287,8 @@ export default {
 
     //this.pagination.itemsPerPage=this.currentUser.setting_items_per_page
 
-    // init燈號led資料
-    this.Leds=[];
-    for (let i=0; i<this.max; i++) {
-      this.Leds.push(false)
-    }
-
     // init燈號數字資料
     let obj= {value: '.',}
-    //this.selectedChips=[];
-    //for (let i=0; i<this.max; i++) {
-    //  this.selectedChips.push(obj)
-    //}
-
     for (let i=0; i<this.max; i++) {
       let obj= {value: '.',}
       this.selectedLeds.led1.push(obj);
@@ -861,6 +310,7 @@ export default {
       this.selectedLeds.led5.push(obj);
     }
 
+    // init燈號led資料
     for (let i=0; i<this.max; i++) {
       let obj= {value: false,}
       this.selectedLamps.led1.push(obj);
@@ -890,8 +340,8 @@ export default {
 
   methods: {
     listGrids() {
-      const path = '/listGrids';
-      console.log("listGrids, Axios get data...")
+      const path = '/listGridsForLed';
+      console.log("listGridsForLed, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
@@ -909,234 +359,229 @@ export default {
       let max_layouts=5;
       let grid_count=this.temp_desserts.length;
 
+      //get data from database into tab1_segs, tab2_segs and tab3_segs
       for (let i=0; i<grid_count; i++) {
         let sw = parseInt(this.temp_desserts[i].grid_station);
         switch (sw) {
-          case 1:
+          case 1:   //第1個料站
             for (let i=0; i<max_layouts; i++) {
               this.tab1_segs[Object.keys(this.tab1_segs)[i]] = this.temp_desserts.filter(function( obj ) {
                 return (parseInt(obj.grid_station) == 1  && parseInt(obj.grid_layout) == i+1);
               });
             }
 
+            for (let i=0; i<max_layouts; i++) {
+              let segs= this.tab1_segs[Object.keys(this.tab1_segs)[i]].length;
+              /*
+              if (segs != 0) {
+                let j=0
+                do {
+                  delete this.tab1_segs[Object.keys(this.tab1_segs)[i]][j].grid_reagName;
+                  delete this.tab1_segs[Object.keys(this.tab1_segs)[i]][j].grid_reagID;
+                  j++
+                } while  (j < segs);
+              }
+              */
+            }
+
             break;
-          case 2:
+          case 2:   //第2個料站
             for (let i=0; i<max_layouts; i++) {
               this.tab2_segs[Object.keys(this.tab2_segs)[i]] = this.temp_desserts.filter(function( obj ) {
                 return (parseInt(obj.grid_station) == 2  && parseInt(obj.grid_layout) == i+1);
               });
             }
 
+            for (let i=0; i<max_layouts; i++) {
+              let segs= this.tab2_segs[Object.keys(this.tab2_segs)[i]].length;
+              /*
+              if (segs != 0) {
+                let j=0
+                do {
+                  delete this.tab2_segs[Object.keys(this.tab2_segs)[i]][j].grid_reagName;
+                  delete this.tab2_segs[Object.keys(this.tab2_segs)[i]][j].grid_reagID;
+                  j++
+                } while  (j < segs);
+              }
+              */
+            }
+
             break;
-          default:
+          default:     //第3個料站
             for (let i=0; i<max_layouts; i++) {
               this.tab3_segs[Object.keys(this.tab3_segs)[i]] = this.temp_desserts.filter(function( obj ) {
                 return (parseInt(obj.grid_station) == 3  && parseInt(obj.grid_layout) == i+1);
               });
             }
 
+            for (let i=0; i<max_layouts; i++) {
+              let segs= this.tab3_segs[Object.keys(this.tab3_segs)[i]].length;
+              /*
+              if (segs != 0) {
+                let j=0
+                do {
+                  delete this.tab3_segs[Object.keys(this.tab3_segs)[i]][j].grid_reagName;
+                  delete this.tab3_segs[Object.keys(this.tab3_segs)[i]][j].grid_reagID;
+                  j++
+                } while  (j < segs);
+              }
+              */
+            }
+
             break;
         } //end switch loop
       } //end for loop
 
+      this.tab_totals[0]=0;
+      for (let index=0; index<5; index++) {
+        let t1=Object.keys(this.tab1_segs[Object.keys(this.tab1_segs)[index]]).length
+        this.tab_totals[0] = this.tab_totals[0] + t1;
+      }
+      console.log("tab1 :", this.tab_totals[0]);
+
+      this.tab_totals[1]=0;
+      for (let index=0; index<5; index++) {
+        let t2=Object.keys(this.tab2_segs[Object.keys(this.tab2_segs)[index]]).length
+        this.tab_totals[1] = this.tab_totals[1] + t2;
+      }
+      console.log("tab2 :", this.tab_totals[1]);
+
+      this.tab_totals[2]=0;
+      for (let index=0; index<5; index++) {
+        let t3=Object.keys(this.tab3_segs[Object.keys(this.tab3_segs)[index]]).length
+        this.tab_totals[2] = this.tab_totals[2] + t3;
+      }
+      console.log("tab3 :", this.tab_totals[2]);
+
+      this.myObject1.segs = Object.assign({}, this.tab1_segs);
+      this.myObject2.segs = Object.assign({}, this.tab2_segs);
+      this.myObject3.segs = Object.assign({}, this.tab3_segs);
+
+      //get (tab1_rans, tab2_rans, tab3_rans) data from (tab1_segs, tab2_segs, tab3_segs)
       for (let i=0; i<max_layouts; i++) {
-        //console.log("key 1...")
-        //console.log("object key: ", i, this.tab1_segs[Object.keys(this.tab1_segs)[i]][0].range0, this.tab1_segs[Object.keys(this.tab1_segs)[i]][0].range1);
-        //console.log("object key: ", i, this.tab2_segs[Object.keys(this.tab2_segs)[i]][0].range0, this.tab2_segs[Object.keys(this.tab2_segs)[i]][0].range1);
-        //console.log("object key: ", i, this.tab3_segs[Object.keys(this.tab3_segs)[i]][0].range0, this.tab3_segs[Object.keys(this.tab3_segs)[i]][0].range1);
-        //console.log("key 1...")
+        //console.log("station 1...")
         if (this.tab1_segs[Object.keys(this.tab1_segs)[i]].length!=0) {
           this.tab1_rans[Object.keys(this.tab1_rans)[i]][0]=parseInt(this.tab1_segs[Object.keys(this.tab1_segs)[i]][0].range0);
           this.tab1_rans[Object.keys(this.tab1_rans)[i]][1]=parseInt(this.tab1_segs[Object.keys(this.tab1_segs)[i]][0].range1);
         } else {
-          this.tab1_rans[Object.keys(this.tab1_rans)[i]][0]=1;
-          this.tab1_rans[Object.keys(this.tab1_rans)[i]][1]=3;
+          this.tab1_rans[Object.keys(this.tab1_rans)[i]][0]=1;  //init range slider min default value
+          this.tab1_rans[Object.keys(this.tab1_rans)[i]][1]=3;  //init range slider max default value
         }
 
-        //console.log("key 2...")
+        //console.log("station 2...")
         if (this.tab2_segs[Object.keys(this.tab2_segs)[i]].length!=0) {
           this.tab2_rans[Object.keys(this.tab2_rans)[i]][0]=parseInt(this.tab2_segs[Object.keys(this.tab2_segs)[i]][0].range0);
           this.tab2_rans[Object.keys(this.tab2_rans)[i]][1]=parseInt(this.tab2_segs[Object.keys(this.tab2_segs)[i]][0].range1);
         } else {
-          this.tab2_rans[Object.keys(this.tab2_rans)[i]][0]=1;
-          this.tab2_rans[Object.keys(this.tab2_rans)[i]][1]=3;
+          this.tab2_rans[Object.keys(this.tab2_rans)[i]][0]=1;  //init range slider min default value
+          this.tab2_rans[Object.keys(this.tab2_rans)[i]][1]=3;  //init range slider max default value
         }
 
-        //console.log("key 3...")
+        //console.log("station 3...")
         if (this.tab3_segs[Object.keys(this.tab3_segs)[i]].length!=0) {
           this.tab3_rans[Object.keys(this.tab3_rans)[i]][0]=parseInt(this.tab3_segs[Object.keys(this.tab3_segs)[i]][0].range0);
           this.tab3_rans[Object.keys(this.tab3_rans)[i]][1]=parseInt(this.tab3_segs[Object.keys(this.tab3_segs)[i]][0].range1);
         } else {
-          this.tab3_rans[Object.keys(this.tab3_rans)[i]][0]=1;
-          this.tab3_rans[Object.keys(this.tab3_rans)[i]][1]=3;
+          this.tab3_rans[Object.keys(this.tab3_rans)[i]][0]=1;  //init range slider min default value
+          this.tab3_rans[Object.keys(this.tab3_rans)[i]][1]=3;  //init range slider max default value
         }
       }
+      this.myObject1.rans = Object.assign({}, this.tab1_rans);
+      this.myObject2.rans = Object.assign({}, this.tab2_rans);
+      this.myObject3.rans = Object.assign({}, this.tab3_rans);
 
-      console.log("tab1_rans.range1: ", this.tab1_rans.range1)
-      this.slider_data_ok=true;
+      this.items[0].content = Object.assign({}, this.myObject1);
+      this.items[1].content = Object.assign({}, this.myObject2);
+      this.items[2].content = Object.assign({}, this.myObject3);
 
+      //this.slider_data_ok=true;
     },
 
-    /*
-    getComp() {
-      let el = document.getElementsByClassName('temp_text').length;
+    getGridData(value, index, obj) {
+      console.log("hello return from child component ...", value, index, obj)
+      if (value==0) {
+        //console.log("return from station1 ...", obj[Object.keys(obj)[index]], this.tab1_segs[Object.keys(this.tab1_segs)[index]]);
+        this.tab1_segs[Object.keys(this.tab1_segs)[index]]= Object.assign([], obj[Object.keys(obj)[index]]);
+        console.log("station1 new obj: ", this.tab1_segs[Object.keys(this.tab1_segs)[index]]);
 
-      for (let i=0; i< el; i++) {
-        document.getElementsByClassName('temp_text')[i].style['margin-left'] = (this.light_width * this.segment[i].size - this.segment_width) / 2  + 'px';
-        document.getElementsByClassName('temp_text')[i].style['margin-right'] = (this.light_width * this.segment[i].size - this.segment_width) / 2  + 'px';
-        document.getElementsByClassName('temp_text')[i].style['left'] = (10+29) - 20 * (this.segment[i].id - 1)+ 'px';
-        document.getElementsByClassName('temp_text')[i]
-        .getElementsByClassName('v22')[0].childNodes[1].style['left']= (29 * this.segment[i].range0 -39) / 2 + 'px';
-        //.getElementsByClassName('v22')[0].childNodes[1].style['left']= (29 * this.segment[i].size -39) / 2 + 'px';
-      }
-    },
-    */
-    toggleLed(index) {
-      //init 常數的值
-      //this.segments[Object.keys(this.segments)[index]];
-      this.errorMessages[Object.keys(this.errorMessages)[index]] = '';
-      let temp_seg_size=this.segments[Object.keys(this.segments)[index]].length;
-      let r0=this.ranges[Object.keys(this.ranges)[index]][0];
-      let r1=this.ranges[Object.keys(this.ranges)[index]][1];
+        //this.myObject1.segs[Object.keys(this.myObject1.segs)[index]] = Object.assign({}, this.tab1_segs[Object.keys(this.tab1_segs)[index]]);
+        this.myObject1.segs = Object.assign({}, this.tab1_segs);
 
-      //檢查資料的正確性
-      if (r0 > r1) {
-        //this.rangErrMsg='格位資料設定錯誤!'
-        this.errorMessages[Object.keys(this.errorMessages)[index]] = '格位資料設定錯誤!';
-        return;
-      }
+        //this.myObject1.segs[Object.keys(this.myObject1.segs)[index]] = this.tab1_segs[Object.keys(this.tab1_segs)[index]];
+        console.log("station1 new myObject1.segs: ", this.myObject1.segs)
+        this.items[0].content = Object.assign({}, this.myObject1);
 
-      for (let i=0; i<temp_seg_size; i++) {
-        if ((r0 > this.segments[Object.keys(this.segments)[index]][i].range0 && r0 < this.segments[Object.keys(this.segments)[index]][i].range1) ||
-          (r1 > this.segments[Object.keys(this.segments)[index]][i].range0 && r1 < this.segments[Object.keys(this.segments)[index]][i].range1) ||
-          (r0 == this.segments[Object.keys(this.segments)[index]][i].range0 && r1 > this.segments[Object.keys(this.segments)[index]][i].range1) ||
-          (r1 == this.segments[Object.keys(this.segments)[index]][i].range1 && r0 < this.segments[Object.keys(this.segments)[index]][i].range0)) {
-          this.errorMessages[Object.keys(this.errorMessages)[index]] = '格位資料設定錯誤!';
-          return;
+        this.tab_totals[0]=0;
+        for (let index=0; index<5; index++) {
+          let t1=Object.keys(this.tab1_segs[Object.keys(this.tab1_segs)[index]]).length
+          this.tab_totals[0] = this.tab_totals[0] + t1;
         }
       }
 
-      let ch1=this.checkSegmentRange(index);
-      let ch2=this.checkSegmentID(index);
+      if (value==1) {
+        //console.log("return from station2 ...", obj[Object.keys(obj)[index]], this.tab2_segs[Object.keys(this.tab1_segs)[index]])
+        this.tab2_segs[Object.keys(this.tab2_segs)[index]]= Object.assign([], obj[Object.keys(obj)[index]]);
+        console.log("station2 new obj: ", this.tab2_segs[Object.keys(this.tab2_segs)[index]])
 
-      if (!ch1 && ch2) {
-        console.log("hello !ch1 && ch2...")
-        this.errorMessages[Object.keys(this.errorMessages)[index]] = '格位資料設定錯誤!';
-        return;
-      }
+        this.myObject2.segs = Object.assign({}, this.tab2_segs);
 
-      if (ch1 && ch2) {
-        console.log("hello ch1 && ch2...");
-        let l1 = this.segments[Object.keys(this.segments)[index]].length;
-        this.segments[Object.keys(this.segments)[index]] = this.segments[Object.keys(this.segments)[index]].filter(function( obj ) {
-          return (obj.range0 != r0  && obj.range1 != r1);
-        });
-        let l2 = this.segments[Object.keys(this.segments)[index]].length;
-        if (l2 == l1) {
-          let obj= {
-            seg_id: this.segment_values[index],
-            range0: r0,
-            range1: r1,
-          }
-          this.segments[Object.keys(this.segments)[index]].push(obj);
+        //this.myObject2.segs = Object.assign({}, this.tab2_segs);
+        //this.myObject2.segs[Object.keys(this.myObject2.segs)[index]] = Object.assign({}, this.tab2_segs[Object.keys(this.tab2_segs)[index]]);
+        //this.myObject2.segs[Object.keys(this.myObject2.segs)[index]] = this.tab2_segs[Object.keys(this.tab2_segs)[index]];
+        console.log("station2 new myObject1.segs: ", this.myObject2.segs)
+        this.items[1].content = Object.assign({}, this.myObject2);
+
+        this.tab_totals[1]=0;
+        for (let index=0; index<5; index++) {
+          let t2=Object.keys(this.tab2_segs[Object.keys(this.tab2_segs)[index]]).length
+          this.tab_totals[1] = this.tab_totals[1] + t2;
         }
       }
 
-      if (ch1 && !ch2) {
-        console.log("hello ch1 && !ch2...")
+      if (value==2) {
+        console.log("return from station3 ...", obj[Object.keys(obj)[index]], this.tab3_segs[Object.keys(this.tab1_segs)[index]])
 
-        let obj = this.segments[Object.keys(this.segments)[index]].find(o => (o.range0 == r0 && o.range1 == r1));
-        obj.seg_id = this.segment_values[index];
+        this.tab3_segs[Object.keys(this.tab3_segs)[index]]= Object.assign([], obj[Object.keys(obj)[index]]);
+        console.log("station3 new obj: ", this.tab3_segs[Object.keys(this.tab3_segs)[index]])
+        this.myObject3.segs = Object.assign({}, this.tab3_segs);
 
-        let els = document.getElementsByClassName('container_tab1');
-        for (let j=this.ranges[Object.keys(this.ranges)[index]][0]; j<this.ranges[Object.keys(this.ranges)[index]][1]+1; j++) {
-          let dot = els[index].childNodes[j];
-          //this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value = !this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value;
-          this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value = true;
-          let temp_togg = this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value ? (dot.className += " on") : (dot.className = "dot");
+        //this.myObject3.segs = Object.assign({}, this.tab3_segs);
+        //this.myObject3.segs[Object.keys(this.myObject3.segs)[index]] = Object.assign({}, this.tab3_segs[Object.keys(this.tab3_segs)[index]]);
+        //this.myObject3.segs[Object.keys(this.myObject3.segs)[index]] = this.tab3_segs[Object.keys(this.tab3_segs)[index]];
+        console.log("station3 new myObject1.segs: ", this.myObject3.segs)
+        this.items[2].content = Object.assign({}, this.myObject3);
+
+        this.tab_totals[2]=0;
+        for (let index=0; index<5; index++) {
+          let t3=Object.keys(this.tab3_segs[Object.keys(this.tab3_segs)[index]]).length
+          this.tab_totals[2] = this.tab_totals[2] + t3;
         }
-
-        for (let i=0; i<this.segments[Object.keys(this.segments)[index]].length; i++) {
-          let start_p=this.segments[Object.keys(this.segments)[index]][i].range0-1
-          console.log("1. point: ", i, start_p, this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value, isNaN(this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value))
-          console.log("2. point: ", index, this.segments[Object.keys(this.segments)[index]][i].seg_id, this.segment_values[index])
-          if (!isNaN(this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value))
-            //this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = this.segments[Object.keys(this.segments)[index]][i].seg_id;
-            this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = parseInt(this.segment_values[index]);
-          else
-            this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = '.';
-        }
-        return;
-      }
-
-      if (!ch1 && !ch2) {
-        console.log("hello !ch1 && !ch2...")
-        //檢查是否power off Led
-        let l1 = this.segments[Object.keys(this.segments)[index]].length
-        //console.log("seg point: ", this.segment.length, l1)
-        this.segments[Object.keys(this.segments)[index]] = this.segments[Object.keys(this.segments)[index]].filter(function( obj ) {
-          return (obj.range0 != r0  && obj.range1 != r1);
-        });
-
-        let obj= {
-          seg_id: this.segment_values[index],
-          range0: r0,
-          range1: r1,
-        }
-        this.segments[Object.keys(this.segments)[index]].push(obj);
-      }
-
-      let els = document.getElementsByClassName('container_tab1');
-      for (let j=this.ranges[Object.keys(this.ranges)[index]][0]; j<this.ranges[Object.keys(this.ranges)[index]][1]+1; j++) {
-        let dot = els[index].childNodes[j];
-        this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value = !this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value;
-        let temp_togg = this.selectedLamps[Object.keys(this.selectedLamps)[index]][j-1].value ? (dot.className += " on") : (dot.className = "dot");
-      }
-
-      let start_p = r0-1;
-      //let start_p=this.segment[i].range0-1;
-      console.log("point: ", start_p, this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value);
-
-      if (isNaN(this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value)) {
-        let obj = this.segments[Object.keys(this.segments)[index]].find(o => (o.range0 == r0 && o.range1 == r1));
-        this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = obj.seg_id;
-      } else {
-        this.selectedLeds[Object.keys(this.selectedLeds)[index]][start_p].value = '.';
       }
     },
 
-    eraseErrMsg(index) {
-      console.log("range data error...")
-      this.errorMessages[Object.keys(this.errorMessages)[index]] = '';
+    nextTabContent(index) {
+      console.log("tab index:", index);
+      this.tab_index=index;
     },
 
-    //input: fromDateValStart,
-    //output: fromDateValStart, compareDateStart
-    checkSegmentRange(index) {
-      if (this.segments[Object.keys(this.segments)[index]].length == 0)
-        return true;
+    closeCard () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    confirmCard () {
 
-      let r0=this.ranges[Object.keys(this.ranges)[index]][0];
-      let r1=this.ranges[Object.keys(this.ranges)[index]][1];
-
-
-      //console.log("type check...", typeof(r0))
-      let obj = this.segments[Object.keys(this.segments)[index]].find(o => (o.range0 == r0 && o.range1 == r1));
-      if (typeof obj !== 'undefined')
-        return true;
-      else
-        return false;
     },
 
-    checkSegmentID(index) {
-      if (this.segments[Object.keys(this.segments)[index]].length == 0)
-        return true;
+    connectMQTT() {
+      console.log("connectMQTT()");
+      this.dialog = true;
+    },
 
-      let obj = this.segments[Object.keys(this.segments)[index]].find(o => o.seg_id == this.segment_values[index]);
-      if (typeof obj !== 'undefined')
-        return true;
-      else
-        return false;
+    saveData() {
+      console.log("saveData()");
     },
   },
 }
@@ -1199,8 +644,11 @@ div.v-toolbar__title {
 }
 
 small.msgErr {
-  font-size: 80%;
+  font-size: 85%;
   color: red;
   margin-top: -10px;
+  position: relative;
+  right: -120px;
+  top: -17px;
 }
 </style>

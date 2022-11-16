@@ -144,6 +144,9 @@ class Grid(BASE):
     station = Column(String(9), nullable=False)
     layout = Column(String(10), nullable=False)
     pos = Column(String(10), nullable=False)
+    seg_id = Column(String(10), nullable=False)
+    range0 = Column(String(10), nullable=False)
+    range1 = Column(String(10), nullable=False)
     # reagent table內的資料除, 父子relation切斷, 也會刪除 reagent的資料
     # _reagents_on_grid = relationship(
     #    'Reagent', backref='grid', cascade="all, delete-orphan")
@@ -156,7 +159,7 @@ class Grid(BASE):
 
     # __str__, for print function的輸出; __repr__, 給python顯示變數的輸出
     def __repr__(self):  # 定義變數輸出的內容
-        return "id={}, station={}, layout={}, pos={}".format(self.id, self.station, self.layout, self.pos)
+        return "id={}, station={}, layout={}, pos={}, seg_id={}, range0={}, range1={}".format(self.id, self.station, self.layout, self.pos, self.seg_id, self.range0, self.range1)
 
     # 定義class的dict內容
     def get_dict(self):
@@ -164,7 +167,10 @@ class Grid(BASE):
             'id': self.id,
             'station': self.station,
             'layout': self.layout,
-            'pos': self.pos,
+            'pos': self.pos,          #pos == seg_id
+            'seg_id': self.seg_id,
+            'range0': self.range0,
+            'range1': self.range1,
         }
 
 

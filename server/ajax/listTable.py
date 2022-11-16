@@ -201,8 +201,42 @@ def list_grids():
                 'grid_layout': grid.layout,
                 'grid_pos': grid.pos,
                 'grid_id': grid.id,
+                'seg_id': grid.seg_id,
+                'range0': grid.range0,
+                'range1': grid.range1,
             }
             _results.append(_obj)
+
+    s.close()
+    return jsonify({
+        'status': 'success',
+        'outputs': _results
+    })
+
+
+# list grid table for Led
+@listTable.route("/listGridsForLed", methods=['GET'])
+def list_grids_for_led():
+    print("listGridsForLed....")
+    s = Session()
+    _results = []
+    _objects = s.query(Grid).all()
+    # grids = [u.__dict__ for u in _objects]
+    for grid in _objects:
+        # if (grid.isRemoved):
+        # for reagent in grid._reagents_on_grid:
+        _obj = {
+            # 'grid_reagID': reagent.reag_id,
+            # 'grid_reagName': reagent.reag_name,
+            'grid_station': grid.station,
+            'grid_layout': grid.layout,
+            # 'grid_pos': grid.pos,
+            # 'grid_id': grid.id,
+            'seg_id': grid.seg_id,
+            'range0': grid.range0,
+            'range1': grid.range1,
+        }
+        _results.append(_obj)
 
     s.close()
     return jsonify({

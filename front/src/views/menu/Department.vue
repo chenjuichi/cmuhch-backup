@@ -466,7 +466,7 @@ small.msgErr {
   padding-right: 0px !important;
   text-align: center !important;
 }
-
+/*
 ::v-deep .add_modalbox > .v-card {
     background: rgba(170, 209, 183, 0.37);
     border-radius: 16px;
@@ -475,4 +475,5 @@ small.msgErr {
     -webkit-backdrop-filter: blur(4.8px);
     border: 1px solid rgba(170, 209, 183, 1);
 }
+*/
 </style>

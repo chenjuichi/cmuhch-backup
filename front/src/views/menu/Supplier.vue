@@ -711,6 +711,7 @@ small.msgErr {
   font-size: 10px !important;
 }
 
+/*
 ::v-deep .add_modalbox > .v-card {
     background: rgba(170, 209, 183, 0.37);
     border-radius: 16px;
@@ -727,4 +728,5 @@ small.msgErr {
 ::v-deep div[role=listbox].v-list.v-select-list {
   background: rgba(170, 209, 183, 1) !important;
 }
+*/
 </style>
