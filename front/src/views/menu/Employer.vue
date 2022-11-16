@@ -7,7 +7,7 @@
           :headers="headers"
           :items="desserts"
           class="elevation-1"
-          :options.sync="pagination"        
+          :options.sync="pagination"
           :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
@@ -15,7 +15,7 @@
               <v-toolbar-title>員工資料</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px" content-class="add_modalbox">
+              <v-dialog v-model="dialog" max-width="500px" :content-class='temp_css'>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon left dark>mdi-table-plus</v-icon>
@@ -38,7 +38,7 @@
                             :readonly="formTitle === '編輯資料'"
                             @focus="fieldFocus"
                           ></v-text-field>
-                          <small class="msgErr" v-text= "IDErrMsg"></small>    
+                          <small class="msgErr" v-text= "IDErrMsg"></small>
 
                         </v-col>
 
@@ -54,9 +54,9 @@
                           <v-select
                             :items="departments"
                             label="組別"
-                            prepend-icon="mdi-account-group"   
+                            prepend-icon="mdi-account-group"
                             v-model="editedItem.emp_dep"
-                            @focus="fieldFocus"                            
+                            @focus="fieldFocus"
                           ></v-select>
                           <!--
                           <v-text-field
@@ -70,7 +70,7 @@
                   </v-card-text>
 
                   <v-card-actions>
-                    <v-spacer></v-spacer>                      
+                    <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">取消</v-btn>
                     <v-btn color="blue darken-1" text @click="save" :disabled='checkDataForSaveButton'>確定</v-btn>
 
@@ -111,7 +111,7 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
@@ -120,8 +120,8 @@
             <v-toolbar
               color="primary"
               dark
-            >錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            >錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">權限不足...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -154,6 +154,7 @@ export default {
       userData.setting_items_per_page = this.pagination.itemsPerPage;
       localStorage.setItem('loginedUser', JSON.stringify(userData));
     };
+
   },
 
   data: () => ({
@@ -177,14 +178,14 @@ export default {
     nameErrMsg: '',
 
     //資料表頭
-    headers: [      
+    headers: [
       //{ text: 'ID', sortable: false, value: 'id', width: '10%', align: 'start'},
       { text: '員工編號', sortable: true, value: 'emp_id', width: '20%', align: 'start'},
       { text: '姓名', sortable: false, value: 'emp_name', width: '30%' },
       { text: '組別', sortable: true, value: 'emp_dep', width: '30%' },
-      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },        
+      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },
     ],
-        
+
     desserts: [],
     temp_desserts: [],
 
@@ -196,15 +197,16 @@ export default {
       //id: 0,
       emp_id: '',
       emp_name: '',
-      emp_dep: '',      
+      emp_dep: '',
     },
     defaultItem: {
       emp_id: '',
       emp_name: '',
-      emp_dep: '',      
+      emp_dep: '',
     },
     load_SingleTable_ok: false, //for get employer table data
     load_2thTable_ok: false,    //for get department table data
+    //temp_css: 'add_modalbox',
   }),
 
   computed: {
@@ -233,7 +235,7 @@ export default {
       val || this.closeDelete()
     },
 
-    'editedItem.emp_id': function () {  
+    'editedItem.emp_id': function () {
       let isEmpIDRule = /^[A,D,N,T][0-9]{5}$/;
 
       this.IDErrMsg = '';
@@ -244,10 +246,10 @@ export default {
         this.IDErrMsg = '';
       } else {
         this.IDErrMsg = '員工編號資料格式錯誤!';
-      }      
+      }
     },	//end 'empID': function()
 
-    'editedItem.emp_name': function () {  
+    'editedItem.emp_name': function () {
       let isNameRule = /^[\u4e00-\u9fa5_a-zA-Z]+$/;
 
       this.nameErrMsg = '';
@@ -259,7 +261,7 @@ export default {
       if (result==-1 || len>10) {
           this.nameErrMsg = '資料格式錯誤或資料長度太長!';
       }
-    },	//end 'name': function()           
+    },	//end 'name': function()
 
     load_2thTable_ok(val) {
       if (val) {
@@ -297,16 +299,16 @@ export default {
   methods: {
     initialize () {
       this.load_SingleTable_ok=false;
-      this.listUsers();  
+      this.listUsers();
     },
 
-    listUsers() { 
+    listUsers() {
       const path = '/listUsers';
       console.log("listUsers, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
@@ -322,7 +324,7 @@ export default {
         //this.temp_departments = res.data.outputs;
         this.temp_departments = res.data.outputs.map(item => Object.values(item)[0]); //從object中copy value至array
 
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_2thTable_ok = true;  //true: 資料download成功
       })
       .catch((error) => {
@@ -352,7 +354,7 @@ export default {
       .catch(err => {
           console.error(err);
       });
-    },    
+    },
     */
     editItem (item) { //open 編輯dialog(edit與create)
       this.editedIndex = this.desserts.indexOf(item);
@@ -362,7 +364,7 @@ export default {
 
     deleteItem (item) { //open remove confirm dialog
       this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);      
+      this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
@@ -415,7 +417,7 @@ export default {
           //};
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
         console.error(err)
@@ -463,14 +465,14 @@ export default {
           //};
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
+        }
       })
       .catch(err => {
         console.error(err);
         //this.registerOK= false;
       });
 
-      //this.signUp=false;  //註冊OK, 則轉為登入畫面      
+      //this.signUp=false;  //註冊OK, 則轉為登入畫面
     },
 
     createUser(object) {  //新增 user後端table資料
@@ -488,7 +490,7 @@ export default {
       axios.post(path, payload)
       .then(res => {
         console.log("save user data status: ", res.data.status)
-        
+
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -504,12 +506,12 @@ export default {
       .catch(err => {
         console.error(err);
       });
-    },    
+    },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
+      this.$router.push('/navbar');
     },
   },
 }
@@ -526,15 +528,15 @@ div.v-toolbar__title {
 }
 /*
 th.text-start{
-  font-size: 24px;  
+  font-size: 24px;
 }
 
 @mixin name {
-  
+
 }
 */
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {
@@ -563,4 +565,5 @@ small.msgErr {
     -webkit-backdrop-filter: blur(4.8px);
     border: 1px solid rgba(170, 209, 183, 1);
 }
+
 </style>

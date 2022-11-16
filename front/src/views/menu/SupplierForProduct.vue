@@ -6,9 +6,9 @@
         <v-data-table
           :headers="headers"
           :items="desserts"
-          class="elevation-1" 
-          :item-class="setRowStyle"      
-          :options.sync="pagination"    
+          class="elevation-1"
+          :item-class="setRowStyle"
+          :options.sync="pagination"
           :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
@@ -31,15 +31,15 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col cols="12">                          
+                        <v-col cols="12">
                           <v-text-field
                             label="類別名稱"
                             type="text"
-                            prepend-icon="mdi-format-list-bulleted-type"         
+                            prepend-icon="mdi-format-list-bulleted-type"
                             @focus="fieldFocus"
                             v-model="editedItem.prd_name"
                           />
-                          <small class="msgErr" v-text= "prdErrMsg"></small>                         
+                          <small class="msgErr" v-text= "prdErrMsg"></small>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -87,7 +87,7 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
@@ -96,8 +96,8 @@
             <v-toolbar
               color="primary"
               dark
-            >錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            >錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">使用這項功能, 請通知管理人員...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -135,7 +135,7 @@ export default {
   data: () => ({
     currentUser: {},
 
-    permDialog: false,    
+    permDialog: false,
     dialog: false,
     dialogDelete: false,
 
@@ -152,22 +152,22 @@ export default {
     prdErrMsg: '',
 
     //資料表頭
-    headers: [      
+    headers: [
       //{ text: 'ID', sortable: false, value: 'id', width: '10%', align: 'start'},
       {text: '產品類別', sortable: true, value: 'prd_name', width: '300px', align: 'center'},
-      {text: 'Actions', sortable: false, value: 'actions', width: '110px'},   
-    ],    
+      {text: 'Actions', sortable: false, value: 'actions', width: '110px'},
+    ],
     desserts: [],
     temp_desserts: [],
 
     editedIndex: -1,
     editedItem: {
       id: '',
-      prd_name: '',      
+      prd_name: '',
     },
     defaultItem: {
       id: '',
-      prd_name: '',      
+      prd_name: '',
     },
 
     load_SingleTable_ok: false,   //true: get prdartment table data is ok
@@ -256,27 +256,27 @@ export default {
       */
     },
 
-    listProductsByObj() { 
+    listProductsByObj() {
       const path = '/listProductsByObj';
       console.log("listProductsByObj, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
         console.error(error);
         this.load_SingleTable_ok=false;
       });
-    }, 
+    },
 
     setRowStyle(item) {
       return 'style-1';
     },
 
     fieldFocus() {
-      this.prdErrMsg = ''; 
+      this.prdErrMsg = '';
     },
 
     editItem (item) {
@@ -331,13 +331,13 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem);
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
         console.error(err)
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
       });
-    },  
+    },
 
     save () {
       console.log("click save button, editedIndex: ", this.editedIndex);
@@ -359,35 +359,12 @@ export default {
 
     updateProduct(object) {  //編輯 product後端table資料
       console.log("---click update_product data---", object);
-      
+
       const path='/updateProduct';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("update product data status: ", res.data.status)
-        if (res.data.status) {
-          this.tosterOK = false;  //false: 關閉錯誤訊息畫面
-          this.editedItem = Object.assign({}, this.defaultItem)
-        } else {
-          this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
-      })
-      .catch(err => {
-        console.error(err);
-        this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-      });      
-    },
-    
-    createProduct(object) { //新增 product後端table資料
-      console.log("---click create_product data---");
-      console.log("product object: ", object);
-      
-      const path='/createProduct';
-      let payload = Object.assign({}, object);      
-      axios.post(path, payload)
-      .then(res => {
-        console.log("save product data status: ", res.data.status)
-        
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -398,14 +375,37 @@ export default {
       .catch(err => {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-      });      
-    },     
+      });
+    },
+
+    createProduct(object) { //新增 product後端table資料
+      console.log("---click create_product data---");
+      console.log("product object: ", object);
+
+      const path='/createProduct';
+      let payload = Object.assign({}, object);
+      axios.post(path, payload)
+      .then(res => {
+        console.log("save product data status: ", res.data.status)
+
+        if (res.data.status) {
+          this.tosterOK = false;  //false: 關閉錯誤訊息畫面
+          this.editedItem = Object.assign({}, this.defaultItem)
+        } else {
+          this.tosterOK = true;   //true: 顯示錯誤訊息畫面
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        this.tosterOK = true;   //true: 顯示錯誤訊息畫面
+      });
+    },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
-    },    
+      this.$router.push('/navbar');
+    },
   },
 }
 </script>
@@ -421,15 +421,15 @@ div.v-toolbar__title {
 }
 /*
 th.text-start{
-  font-size: 24px;  
+  font-size: 24px;
 }
 
 @mixin name {
-  
+
 }
 */
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {
@@ -452,7 +452,7 @@ small.msgErr {
 
 ::v-deep .style-1 td {
   padding-left: 8px !important;
-  padding-right: 0px !important;    
+  padding-right: 0px !important;
 }
 
 ::v-deep .v-data-table > .v-data-table__wrapper > table > thead > tr > th {

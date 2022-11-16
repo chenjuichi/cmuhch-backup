@@ -6,9 +6,9 @@
         <v-data-table
           :headers="headers"
           :items="desserts"
-          class="elevation-1"      
-          :item-class="setRowStyle"      
-          :options.sync="pagination"    
+          class="elevation-1"
+          :item-class="setRowStyle"
+          :options.sync="pagination"
           :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
@@ -31,15 +31,15 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col cols="12">                          
+                        <v-col cols="12">
                           <v-text-field
                             label="組別"
-                            type="text"           
-                            prepend-icon="mdi-account-group"          
-                            @focus="fieldFocus"                            
+                            type="text"
+                            prepend-icon="mdi-account-group"
+                            @focus="fieldFocus"
                             v-model="editedItem.dep_name"
                           />
-                          <small class="msgErr" v-text= "depErrMsg"></small>                         
+                          <small class="msgErr" v-text= "depErrMsg"></small>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -87,7 +87,7 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
@@ -96,8 +96,8 @@
             <v-toolbar
               color="primary"
               dark
-            >錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            >錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">權限不足...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -135,7 +135,7 @@ export default {
   data: () => ({
     currentUser: {},
 
-    permDialog: false,    
+    permDialog: false,
     dialog: false,
     dialogDelete: false,
     //disbtn : true,
@@ -153,22 +153,22 @@ export default {
     depErrMsg: '',
 
     //資料表頭
-    headers: [      
+    headers: [
       //{ text: 'ID', sortable: false, value: 'id', width: '10%', align: 'start'},
       {text: '組    別', sortable: true, value: 'dep_name', width: '80%', align: 'center'},
-      {text: 'Actions', sortable: false, value: 'actions', width: '20%'},   
-    ],    
+      {text: 'Actions', sortable: false, value: 'actions', width: '20%'},
+    ],
     desserts: [],
     temp_desserts: [],
 
     editedIndex: -1,
     editedItem: {
       id: '',
-      dep_name: '',      
+      dep_name: '',
     },
     defaultItem: {
       id: '',
-      dep_name: '',      
+      dep_name: '',
     },
 
     load_SingleTable_ok: false,   //true: get department table data is ok
@@ -259,27 +259,27 @@ export default {
       */
     },
 
-    listDepartment() { 
+    listDepartment() {
       const path = '/listDepartments';
       console.log("listDepartments, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
         console.error(error);
         this.load_SingleTable_ok=false;
       });
-    }, 
+    },
 
     setRowStyle(item) {
       return 'style-1';
     },
 
     fieldFocus() {
-      this.depErrMsg = ''; 
+      this.depErrMsg = '';
     },
 
     editItem (item) {
@@ -334,13 +334,13 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem);
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
         console.error(err)
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
       });
-    },  
+    },
 
     save () {
       console.log("click save button, editedIndex: ", this.editedIndex);
@@ -362,35 +362,12 @@ export default {
 
     updateDepartment(object) {  //編輯 product後端table資料
       console.log("---click update_department data---", object);
-      
+
       const path='/updateDepartment';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("update department data status: ", res.data.status)
-        if (res.data.status) {
-          this.tosterOK = false;  //false: 關閉錯誤訊息畫面
-          this.editedItem = Object.assign({}, this.defaultItem)
-        } else {
-          this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
-      })
-      .catch(err => {
-        console.error(err);
-        this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-      });      
-    },
-    
-    createDepartment(object) { //新增 department後端table資料
-      console.log("---click create_department data---");
-      console.log("department object: ", object);
-      
-      const path='/createDepartment';
-      let payload = Object.assign({}, object);      
-      axios.post(path, payload)
-      .then(res => {
-        console.log("save department data status: ", res.data.status)
-        
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -401,14 +378,37 @@ export default {
       .catch(err => {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-      });      
-    },  
+      });
+    },
+
+    createDepartment(object) { //新增 department後端table資料
+      console.log("---click create_department data---");
+      console.log("department object: ", object);
+
+      const path='/createDepartment';
+      let payload = Object.assign({}, object);
+      axios.post(path, payload)
+      .then(res => {
+        console.log("save department data status: ", res.data.status)
+
+        if (res.data.status) {
+          this.tosterOK = false;  //false: 關閉錯誤訊息畫面
+          this.editedItem = Object.assign({}, this.defaultItem)
+        } else {
+          this.tosterOK = true;   //true: 顯示錯誤訊息畫面
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        this.tosterOK = true;   //true: 顯示錯誤訊息畫面
+      });
+    },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
-    },    
+      this.$router.push('/navbar');
+    },
   },
 }
 </script>
@@ -424,7 +424,7 @@ div.v-toolbar__title {
 }
 
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {
@@ -447,7 +447,7 @@ small.msgErr {
 
 ::v-deep .style-1 td {
   padding-left: 8px !important;
-  padding-right: 0px !important;    
+  padding-right: 0px !important;
   text-align: start !important;
 }
 

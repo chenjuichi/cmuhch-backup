@@ -6,13 +6,13 @@ import App1 from '../views/menu/App1.vue'
 import App2 from '../views/menu/App2.vue'
 import App3 from '../views/menu/App3.vue'
 import App4 from '../views/menu/App4.vue'
+import About from '../views/About.vue'
 import Login from '../views/LoginForm.vue'
 import Employer from '../views/menu/Employer.vue'
 import Reagent from '../views/menu/Reagent.vue'
 import Grids from '../views/menu/Grids.vue'
-
-import GridsForLed from '../views/menu/GridsForLed.vue'
-
+import GridsForLed from '../views/menu/Grids.vue'
+import Led1 from '../views/menu/Led1.vue'
 import Department from '../views/menu/Department.vue'
 import Supplier from '../views/menu/Supplier.vue'
 import SupplierForProduct from '../views/menu/SupplierForProduct.vue'
@@ -32,13 +32,34 @@ Vue.use(VueRouter)
 
 const routes = [
   { path: '/',      name: 'Login', component: Login},
-  { path: '/about', name: 'About',  component: () => import('../views/About.vue') },
+  //{ path: '/about', name: 'About',  component: () => import('../views/About.vue') },
+  { path: '/about', name: 'About',  component: About},
   { path: '/emp',   name: 'Employer', component: Employer},
   { path: '/reag',  name: 'Reagent', component: Reagent},
   { path: '/grid',  name: 'Grids', component: Grids},
+  { path: '/gridsForLed',  name: 'GridsForLed', component: GridsForLed,
+    children: [
+      {
+        // UserProfile will be rendered inside User's <router-view>
+        // when /user/:id/profile is matched
+        path: 'station1',
+        component: Led1,
+      },
+      {
+        // UserPosts will be rendered inside User's <router-view>
+        // when /user/:id/posts is matched
+        path: 'station2',
+        component: UserPosts,
+      },
+      {
+        // UserProfile will be rendered inside User's <router-view>
+        // when /user/:id/profile is matched
+        path: 'station3',
+        component: UserProfile,
+      },
+    ],
 
-  { path: '/gridsForLed',  name: 'GridsForLed', component: GridsForLed},
-
+  },
   { path: '/dep',  name: 'Department', component: Department},
   { path: '/sup',  name: 'Supplier', component: Supplier},
   { path: '/supAndPrd',  name: 'SupplierForProduct', component: SupplierForProduct},

@@ -3,12 +3,12 @@
     <v-container fluid>
       <v-row align="center" justify="center" v-if="currentUser.perm >= 1">
         <v-card width="80vw" class="pa-md-4  mt-5 mx-lg-auto">
-          <v-data-table 
-            :headers="headers" 
+          <v-data-table
+            :headers="headers"
             :items="desserts"
             class="elevation-1"
-            :item-class="setRowStyle"      
-            :options.sync="pagination"        
+            :item-class="setRowStyle"
+            :options.sync="pagination"
             :footer-props="{ itemsPerPageText: '每頁的資料筆數' }"
           >
             <template v-slot:top>
@@ -40,13 +40,13 @@
                               :readonly="formTitle === '編輯資料'"
                               @focus="fieldFocus"
                             />
-                            <small class="msgErr" v-text= "IDErrMsg"></small>  
+                            <small class="msgErr" v-text= "IDErrMsg"></small>
                           </v-col>
                           <v-col cols="12" md="6">
-                            <v-text-field 
-                              v-model="editedItem.sup_name" 
+                            <v-text-field
+                              v-model="editedItem.sup_name"
                               type="text"
-                              label="供應商名稱" 
+                              label="供應商名稱"
                               prepend-icon="mdi-home-city-outline"
                               @focus="fieldFocus"
                             />
@@ -59,45 +59,45 @@
                         <v-row>
                           <!--
                           <v-col cols="12" md="3">
-                            <v-text-field 
-                              v-model="editedItem.sup_name" 
+                            <v-text-field
+                              v-model="editedItem.sup_name"
                               type="text"
-                              label="供應商名稱" 
+                              label="供應商名稱"
                               @focus="fieldFocus"
                             />
                             <small class="msgErr" v-text="supNameErrMsg"></small>
                           </v-col>
                           -->
                           <v-col cols="12" md="6">
-                            <v-text-field 
-                              v-model="editedItem.sup_address" 
+                            <v-text-field
+                              v-model="editedItem.sup_address"
                               type="text"
-                              label="聯絡地址" 
+                              label="聯絡地址"
                               prepend-icon="mdi-map-marker-outline"
                               @focus="fieldFocus"
                             />
                             <small class="msgErr" v-text="supAddressErrMsg"></small>
                           </v-col>
                           <v-col cols="12" md="3">
-                            <v-text-field 
-                              label="聯絡人" 
+                            <v-text-field
+                              label="聯絡人"
                               type="text"
                               prepend-icon="mdi-card-account-mail-outline"
-                              v-model="editedItem.sup_contact" 
+                              v-model="editedItem.sup_contact"
                               @focus="fieldFocus"
                             />
                             <small class="msgErr" v-text="supContactErrMsg"></small>
                           </v-col>
                           <v-col cols="12" md="3">
-                            <v-text-field 
-                              label="電話" 
+                            <v-text-field
+                              label="電話"
                               type="text"
                               prepend-icon="mdi-phone"
-                              v-model="editedItem.sup_phone" 
+                              v-model="editedItem.sup_phone"
                               @focus="fieldFocus"
                             />
                             <small class="msgErr" v-text="supPhoneErrMsg"></small>
-                          </v-col>                          
+                          </v-col>
                         </v-row>
 <!-- 第3列-->
                         <v-row>
@@ -108,10 +108,10 @@
                               :items="items"
                               chips
                               clearable
-                              
+
                               label="主要產品"
-                              
-                              multiple                              
+
+                              multiple
                               solo
                             >
                               <template v-slot:selection="{ attrs, item, select, selected }">
@@ -184,7 +184,7 @@
       </v-row>
 
       <v-row align="center" justify="space-around" v-else>
-          <v-dialog 
+          <v-dialog
             v-model="permDialog"
             transition="dialog-bottom-transition"
             max-width="500"
@@ -193,8 +193,8 @@
               <v-toolbar
                 color="primary"
                 dark
-              >錯誤訊息!</v-toolbar>          
-              <v-card-text> 
+              >錯誤訊息!</v-toolbar>
+              <v-card-text>
                 <div class="text-h4 pa-12">使用這項功能, 請通知管理人員...</div>
               </v-card-text>
               <v-card-actions class="justify-end">
@@ -203,7 +203,7 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-      </v-row>      
+      </v-row>
     </v-container>
   </v-app>
 </template>
@@ -233,7 +233,7 @@ export default {
 
     //chips: ['Microscan細菌鑑定試劑', '基因檢測試劑', '離心機'],
     /*
-    items: ['基因檢測試劑', '核酸萃取試劑', '離心機', 
+    items: ['基因檢測試劑', '核酸萃取試劑', '離心機',
             'C13檢測試劑', '能力試驗', '教育訓練','抗血清試劑',
             '血液諮詢', 'Microscan細菌鑑定試劑', '台塑生醫EV71-IgM(rapid-tset)'
     ],
@@ -312,8 +312,8 @@ export default {
     checkDataForSaveButton() {
       if (!!this.editedItem.sup_id && !!this.editedItem.sup_name && !!this.editedItem.sup_contact &&
            !!this.editedItem.sup_address && !!this.editedItem.sup_phone &&
-          this.temp_product.length >0 && 
-          this.IDErrMsg == '' && this.supNameErrMsg == '' && this.supContactErrMsg == '' && 
+          this.temp_product.length >0 &&
+          this.IDErrMsg == '' && this.supNameErrMsg == '' && this.supContactErrMsg == '' &&
           this.supAddressErrMsg == '' && this.supPhoneErrMsg == '') {
         return false;
       } else {
@@ -370,7 +370,7 @@ export default {
     'editedItem.sup_contact': function () {
       let isRule = /^([a-zA-Z\u4e00-\u9fa5_.-]+)$/;
       let result = this.editedItem.sup_contact.search(isRule);
-      let len = this.editedItem.sup_contact.length;      
+      let len = this.editedItem.sup_contact.length;
       result = (len==0)?0:result
       //if (len==0)
       //  result=0
@@ -395,7 +395,7 @@ export default {
         this.supPhoneErrMsg = '';
       }
     },
-   
+
     'editedItem.sup_address': function () {
       //let isRuleInt = /^(?['縣'|'市'])(?['鄉','鎮','市','區'])$/;
       //let result = this.editedItem.sup_address.search(isRuleInt);
@@ -421,8 +421,8 @@ export default {
         this.load_SingleTable_ok=false;
         this.listSuppliers();
       }
-    },    
-    
+    },
+
   },
 
   created() {
@@ -446,13 +446,13 @@ export default {
       this.listProducts();
     },
 
-    listProducts() { 
+    listProducts() {
       const path = '/listProducts';
       console.log("listProducts, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_items = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_2thTable_ok=true;
       })
       .catch((error) => {
@@ -461,13 +461,13 @@ export default {
       });
     },
 
-    listSuppliers() { 
+    listSuppliers() {
       const path = '/listSuppliers';
       console.log("listSuppliers, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
@@ -481,7 +481,7 @@ export default {
     },
 
     fieldFocus() {
-      this.IDErrMsg = ''; 
+      this.IDErrMsg = '';
       this.supNameErrMsg = '';
       this.supContactErrMsg = '';
       this.supPhoneErrMsg = '';
@@ -534,7 +534,7 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
-      
+
       this.temp_product=[];
     },
 
@@ -551,13 +551,13 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem);
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
         console.error(err)
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
       });
-    },    
+    },
 
     save() {
       console.log("click save button, editedIndex: ", this.editedIndex);
@@ -586,7 +586,7 @@ export default {
       }
     },
 
-    removeChip(item) {      
+    removeChip(item) {
       this.temp_product.splice(this.temp_product.indexOf(item), 1);
       //this.chips.splice(this.chips.indexOf(item), 1);
       //this.chips = [...this.chips];
@@ -595,9 +595,9 @@ export default {
 
     updateSupplier(object) {  //編輯 supplier後端table資料
       console.log("---click update_supplier data---", object);
-      
+
       const path='/updateSupplier';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("update supplier data status: ", res.data.status)
@@ -606,25 +606,25 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem)
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
+        }
       })
       .catch(err => {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
       });
-      
+
     },
 
     createSupplier(object) {  //新增 supplier後端table資料
       console.log("---click create_reagent data---");
       console.log("supplier object: ", object);
-      
+
       const path='/createSupplier';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("save supplier data status: ", res.data.status)
-        
+
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -635,14 +635,14 @@ export default {
       .catch(err => {
         console.error(err);
       });
-      
-    }, 
+
+    },
 
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
+      this.$router.push('/navbar');
     },
   },
 }
@@ -671,14 +671,14 @@ div.v-toolbar__title {
 
 small.msgErr {
   font-size: 80%;
-  color: red;  
+  color: red;
   top: -20px;
   position: relative;
 }
 
 ::v-deep .style-1 td {
   padding-left: 8px !important;
-  padding-right: 0px !important;    
+  padding-right: 0px !important;
 }
 
 ::v-deep .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
@@ -697,11 +697,11 @@ small.msgErr {
 
 ::v-deep .style-1 td:nth-last-child(2) > span {
   margin-left: 4px !important;
-  margin-right: 0px !important; 
-  margin-top: 4px !important; 
-  margin-bottom: 4px !important; 
+  margin-right: 0px !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
   border-style: solid !important;
-  border-color: coral !important;   
+  border-color: coral !important;
 }
 
 ::v-deep .style-1 td:nth-child(2) {

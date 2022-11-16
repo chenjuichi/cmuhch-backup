@@ -12,45 +12,45 @@
 
     <v-row align="center" justify="center" v-if="currentUser.perm >= 1">
       <v-card width="90vw" class="pa-md-4 mt-5 mx-lg-auto">
-        <v-data-table            
-          dense        
+        <v-data-table
+          dense
           :headers="headers"
-          :items="desserts"        
-          :single-select="singleSelect"
+          :items="dessertsDisplay"
 
           class="elevation-1"
-          :search="search"                      
+          :search="search"
           :custom-filter="filterOnlyCapsText"
           :options.sync="pagination"
-          :item-class="setRowStyle"        
-          :footer-props="{itemsPerPageText: '每頁的資料筆數'}"          
+          :item-class="setRowStyle"
+          :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
-            <v-toolbar flat>              
+            <v-toolbar flat>
               <v-toolbar-title style="height: 40px;">盤點作業</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <!-- 查詢 -->
               <v-spacer></v-spacer>
-              <v-text-field v-model="search" label="關鍵字查詢" class="style-0"></v-text-field>
-              <v-spacer></v-spacer>              
+              <v-text-field v-model="search" placeholder="關鍵字查詢" class="style-0"></v-text-field>
+              <v-spacer></v-spacer>
+              <!-- 效期查詢 -->
               <v-menu
-                v-model="findDateForPeriod"
+                v-model="fromDateMenuPeriod"
                 :close-on-content-click="false"
                 :nudge-right="40"
-                
+
                 transition="scale-transition"
                 offset-y
-                
+
                 max-width="280px"
                 min-width="280px"
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    label="效期查詢"
+                    placeholder="效期查詢"
                     prepend-icon="event"
                     readonly
                     :value="displayPeriodDate"
-                    v-model="PeriodDate"
+                    v-model="compareDatePeriod"
                     v-on="on"
                     class="shrink style-2"
                   ></v-text-field>
@@ -61,30 +61,32 @@
                   :max="maxDate"
                   v-model="fromDateValP"
                   no-title
-                  @input="findDateForPeriod = false"
+                  @input="fromDateMenuPeriod = false"
                 ></v-date-picker>
-              </v-menu>            
+              </v-menu>
               <v-spacer></v-spacer>
+              <!-- 入庫日期查詢 -->
               <v-menu
-                v-model="findDateForBegin"
+                v-model="fromDateMenu"
                 :close-on-content-click="false"
                 :nudge-right="40"
-                
+
                 transition="scale-transition"
                 offset-y
-                
+
                 max-width="280px"
                 min-width="280px"
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    label="入庫開始日期查詢"
+                    placeholder="入庫開始日期查詢"
                     prepend-icon="event"
                     readonly
                     :value="fromDateDisp"
-                    v-model="StockDate"
+                    v-model="compareDate"
                     v-on="on"
                     class="shrink style-3"
+
                   ></v-text-field>
                 </template>
                 <v-date-picker
@@ -93,29 +95,28 @@
                   :max="maxDate"
                   v-model="fromDateVal"
                   no-title
-                  @input="findDateForBegin = false"
+                  @input="fromDateMenu = false"
                 ></v-date-picker>
               </v-menu>
-
-              <v-spacer></v-spacer>
+              <!--<v-spacer></v-spacer>-->
               <v-menu
-                v-model="findDateForEnd"
+                v-model="fromDateMenuEnd"
                 :close-on-content-click="false"
                 :nudge-right="40"
-                
+
                 transition="scale-transition"
                 offset-y
-                
+
                 max-width="280px"
                 min-width="280px"
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    label="入庫截止日期查詢"
+                    placeholder="入庫截止日期查詢"
                     prepend-icon="event"
                     readonly
-                    :value="fromDateDisp"
-                    v-model="StockDate"
+                    :value="fromDateDispEnd"
+                    v-model="compareDateEnd"
                     v-on="on"
                     class="shrink style-3"
                   ></v-text-field>
@@ -124,25 +125,39 @@
                   locale="zh-TW"
                   :min="minDate"
                   :max="maxDate"
-                  v-model="fromDateVal"
+                  v-model="fromDateValEnd"
                   no-title
-                  @input="findDateForEnd = false"
+                  @input="fromDateMenuEnd = false"
                 ></v-date-picker>
               </v-menu>
-
-              <v-spacer></v-spacer>              
+              <v-spacer></v-spacer>
+              <!-- 人員查詢 -->
+              <!--
               <v-select
                 :items="usersSelected"
-                label="入庫人員查詢"
-                prepend-icon="mdi-account-group"   
+                placeholder="入庫人員查詢"
+                prepend-icon="mdi-account-group"
                 v-model="Employer"
-                class="style-4" 
+                class="style-4"
               ></v-select>
-              <!-- 按鍵指令 -->                          
+              -->
+              <v-select
+                @change="checkSelect"
+                :items="itemsForEmployer"
+                label="入庫人員查詢"
+                prepend-icon="mdi-account-group"
+                v-model="selectedEmployers"
+                class="style-4"
+                dense
+                outlined
+                multiple
+              ></v-select>
+
+              <!-- 按鍵指令 -->
               <v-btn color="primary" class="mt-n1 mr-15 mx-auto excel_wrapper" @click="exportToExcel">
                 <v-icon left>mdi-microsoft-excel</v-icon>
                 Excel
-              </v-btn>             
+              </v-btn>
               <div class="flip_wrapper">
                 <div class="flip_btn">
                   <v-btn color="primary" class="side default-side mt-n1 mr-15 mx-auto">
@@ -155,28 +170,28 @@
                   </v-btn>
                 </div>
               </div>
-            </v-toolbar>    
+            </v-toolbar>
           </template>
 
-          <template v-slot:item.stockInTag_grid="props">          
-            <v-edit-dialog              
+          <template v-slot:item.stockInTag_grid="props">
+            <v-edit-dialog
               @save="saveName(props.item)"
-              @open="openName(props.item.stockInTag_grid)"          
-              @close="props.item.stockInTag_grid = editName"            
+              @open="openName(props.item.stockInTag_grid)"
+              @close="props.item.stockInTag_grid = editName"
               :return-value.sync="props.item.stockInTag_grid"
               save-text="確定"
               cancel-text="取消"
               large
-            > 
+            >
               {{ props.item.stockInTag_grid }}
               <template v-slot:input>
                 <v-row>
                   <v-col cols="12" md="4">
                     <div style="color: #007bff; font-weight: 400; font-size: 14px;">站別</div>
-                    <vue-numeric-input  
-                      v-model="num1" 
-                      :min="1" 
-                      :max="3" 
+                    <vue-numeric-input
+                      v-model="num1"
+                      :min="1"
+                      :max="3"
                       :step="1"
                       align="center"
                       size="small"
@@ -184,29 +199,29 @@
                   </v-col>
                   <v-col cols="12" md="4">
                     <div style="color: #007bff; font-weight: 400; font-size: 14px;">層別</div>
-                    <vue-numeric-input  
-                      v-model="num2" 
-                      :min="1" 
-                      :max="5" 
+                    <vue-numeric-input
+                      v-model="num2"
+                      :min="1"
+                      :max="5"
                       :step="1"
                       align="center"
                       size="small"
                     ></vue-numeric-input>
-                  </v-col>              
+                  </v-col>
                   <v-col cols="12" md="4">
                     <div style="color: #007bff; font-weight: 400; font-size: 14px;">格位別</div>
-                    <vue-numeric-input  
-                      v-model="num3" 
-                      :min="1" 
-                      :max="10" 
+                    <vue-numeric-input
+                      v-model="num3"
+                      :min="1"
+                      :max="10"
                       :step="1"
                       align="center"
                       size="small"
                     ></vue-numeric-input>
-                  </v-col>            
+                  </v-col>
                 </v-row>
 
-              <!--  
+              <!--
                 <v-text-field
                   v-model="editName"
                   label="格位"
@@ -217,63 +232,63 @@
 
               </template>
             </v-edit-dialog>
-          </template>        
+          </template>
           <!--
           <template v-slot:[`item.stockInTag_grid`]="{ item }">
             <v-text-field
               dense
               v-model="item.stockInTag_grid"
-            
-              class="pe-0 me-2 py-1 my-0 myText"           
-              @input="getGrid(item)"         
+
+              class="pe-0 me-2 py-1 my-0 myText"
+              @input="getGrid(item)"
             ></v-text-field>
           </template>
           -->
           <!-- text field 2 -->
           <template v-slot:[`item.stockInTag_cnt`]="{ item, index }">
-  <!--T <v-tooltip class="tooltip1"  bottom color="red">--> 
+  <!--T <v-tooltip class="tooltip1"  bottom color="red">-->
   <!--T   <template v-slot:activator="{ on, attrs }">-->
-            <div class="row_myText_inv"> 
+            <div class="row_myText_inv">
                 <v-text-field
                   dense
                   readonly
-                  v-model="temp_desserts[index].stockInTag_cnt"                  
-                  class="centered-input pe-0 me-2 py-1 my-0 block_myText_inv_cnt"           
+                  v-model="temp_desserts[index].stockInTag_cnt"
+                  class="centered-input pe-0 me-2 py-1 my-0 block_myText_inv_cnt"
                   @input="getData(item)"
                 ></v-text-field>
 
   <!--T-->  <v-tooltip class="tooltip2" bottom color="#434343">
   <!--T-->    <template v-slot:activator="{ on, attrs }">
-                <v-text-field 
+                <v-text-field
                   dense
-                  v-model="item.editReagentID"  
+                  v-model="item.editReagentID"
                   @keydown.enter="modifyIDForPressRet(item)"
-                  @blur="modifyIDForBlur(item)"                
+                  @blur="modifyIDForBlur(item)"
                   @focus="modifyIDForFocus(item)"
 
-                  v-bind="attrs"      
+                  v-bind="attrs"
                   v-on="on"
-                    
-                  class="centered-input pe-0 me-2 py-1 my-0 block_myText_inv_id"   
-                  :class="{'block_myText_inv_cnt_mdf_color' : item.isEnter}"      
+
+                  class="centered-input pe-0 me-2 py-1 my-0 block_myText_inv_id"
+                  :class="{'block_myText_inv_cnt_mdf_color' : item.isEnter}"
                 ></v-text-field>
   <!--T-->    </template>
   <!--T-->    <span>選取</span>
   <!--T-->  </v-tooltip>
 
-                <v-text-field              
+                <v-text-field
                   dense
-                  
-                  v-model="item.stockInTag_cnt_inv_mdf"                  
+
+                  v-model="item.stockInTag_cnt_inv_mdf"
                   class="centered-input pe-0 me-2 py-1 my-0 block_myText_inv_cnt_mdf"
-                  :class="{'block_myText_inv_cnt_mdf_color' : item.isEnter}"    
+                  :class="{'block_myText_inv_cnt_mdf_color' : item.isEnter}"
                   @input="getData(item)"
                   @blur="modifyInvCntForBlur(item)"
                   @focus="modifyInvCntForFocus(item)"
                 ></v-text-field>
             </div>
   <!--T    </template>-->
-  <!--T   <span>修改後, 請寫說明!</span>--> 
+  <!--T   <span>修改後, 請寫說明!</span>-->
   <!--T  </v-tooltip>-->
           </template>
 
@@ -284,9 +299,9 @@
             <v-text-field
               dense
               v-model="item.stockInTag_comment"
-              
-              class="pe-0 me-2 py-1 my-0 myText"           
-              @input="getComment(item)" 
+
+              class="pe-0 me-2 py-1 my-0 myText"
+              @input="getComment(item)"
 
             ></v-text-field>
   <!--    </template> T-->
@@ -298,14 +313,14 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
         >
           <v-card>
-            <v-toolbar color="red" dark>錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            <v-toolbar color="red" dark>錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">使用這項功能, 請通知管理人員...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -314,7 +329,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-    </v-row>    
+    </v-row>
   </v-container>
 </v-app>
 </template>
@@ -331,7 +346,7 @@ export default {
   mixins: [Common],
 
   components: {
-    VueNumericInput, 
+    VueNumericInput,
   },
 
   mounted() {
@@ -342,15 +357,15 @@ export default {
       userData.setting_items_per_page = this.pagination.itemsPerPage;
       localStorage.setItem('loginedUser', JSON.stringify(userData));
 
-      this.total_tags = 0;
-      //if ("totalTags" in localStorage) {
-      //  localStorage.setItem("totalTags", 0);
-      //  console.log("...localStorage...");
-      //} 
-      localStorage.setItem("totalTags", 0);
+      //this.total_tags = 0;
+      ////if ("totalTags" in localStorage) {
+      ////  localStorage.setItem("totalTags", 0);
+      ////  console.log("...localStorage...");
+      ////}
+      //localStorage.setItem("totalTags", 0);
     };
- 
-    //this.root = document.documentElement;    
+
+    //this.root = document.documentElement;
   },
 
   data: () => ({
@@ -361,44 +376,50 @@ export default {
     snackbar_color: 'success',
     snackbar_right: true,
     snackbar_top: true,
-    snackbar_info: '', 
+    snackbar_info: '',
     snackbar_icon_color: '#adadad',
-    
-    total_tags: 0,
 
-    stockInTag_EmpID: '',   //入庫人員之員工編號
+    //total_tags: 0,
 
-    errorShowForEmployer: false,
-    errorShowForReagName: false,
+    //stockInTag_EmpID: '',   //入庫人員之員工編號
 
-    findDateForBegin: false,
-    findDateForEnd: false,
+    //errorShowForEmployer: false,
+    //errorShowForReagName: false,
+
+    fromDateMenu: false,
     fromDateVal: null,
-    StockDate: '',  //庫存查詢開始日期
+    compareDate: '',          //查詢開始日期
 
-    findDateForPeriod: false,
+    //myIndex: 0,
+    //myIndexEnd: 0,
+
+    fromDateMenuEnd: false,
+    fromDateValEnd: null,
+    compareDateEnd: '',       //查詢截止日期
+
+    fromDateMenuPeriod: false,
     fromDateValP: null,
-    PeriodDate: '',  //庫存查詢開始日期
+    compareDatePeriod: '',    //庫存效期日期
 
     minDate: "2012-07-01",
     maxDate: "2042-06-30",
 
-    Employer: '',
 
-    //dialog: false, 
-    
+    //dialog: false,
+
     //drawer: false,
     //root: null,
-        
-    upHere: false,
 
-    search: '', 
+    //upHere: false,
 
-    singleSelect: false,
-    selected: [],
+    search: '',
+
+    //singleSelect: false,
+    //selected: [],
+
     //資料表頭
-    headers: [      
-      { text: 'ID', sortable: true, value: 'id', width: '4%', align: 'start' },
+    headers: [
+      { text: 'ID', sortable: false, value: 'id', width: '4%', align: 'start' },
       { text: '資材碼', sortable: true, value: 'stockInTag_reagID', width: '8%' },
       { text: '品名', sortable: true, value: 'stockInTag_reagName', width: '17%' },
       { text: '效期', sortable: true, value: 'stockInTag_reagPeriod', width: '7%' },
@@ -408,18 +429,24 @@ export default {
       { text: '格位', sortable: false, value: 'stockInTag_grid', width: '8%' },
       { text: '在庫數 _ 盤點數', sortable: false, value: 'stockInTag_cnt', width: '11%', align: 'center' },
       { text: '說明', sortable: false, value: 'stockInTag_comment', width: '18%' },
-    ], 
-    
-    pagination: { 
+    ],
+
+    pagination: {
         //itemsPerPage: 10,   //預設值, rows/per page
         //page: 1,
     },
 
-    usersSelected: [],
-    temp_usersSelected: [],
+    itemsForEmployer: [],
+    selectedEmployers: [],
+    isAllSelected: false,
 
+    //temp_itemsForEmployer: [],
+
+    dessertsDisplayForSelect: [],
+    dessertsDisplay: [],
     desserts: [],
     temp_desserts: [],
+
     editedIndex: -1,
 
     clickTimes: 0,
@@ -434,12 +461,12 @@ export default {
     //fields: [],
 
     load_SingleTable_ok: false, //for get employer table data
-    load_2thTable_ok: false,    //for get reagent table data
+    //load_2thTable_ok: false,    //for get reagent table data
   }),
 
   computed: {
     /*
-    check_selected() {   
+    check_selected() {
       if (Array.isArray(this.selected) && this.selected.length) {
         // array exists and is not empty
         return true;
@@ -461,8 +488,8 @@ export default {
         let b = parseInt(yy_value);
         b = b - 1911;
         yy_value = b.toString()
-        this.PeriodDate = yy_value + '/' + mmdd_value;
-      }      
+        this.compareDatePeriod = yy_value + '/' + mmdd_value;
+      }
       return this.fromDateValP;
     },
 
@@ -474,9 +501,22 @@ export default {
         let b = parseInt(yy_value);
         b = b - 1911;
         yy_value = b.toString()
-        this.StockDate = yy_value + '/' + mmdd_value;
-      }      
+        this.compareDate = yy_value + '/' + mmdd_value;
+      }
       return this.fromDateVal;
+    },
+
+    fromDateDispEnd() {
+      if (this.fromDateValEnd != null) {
+        let yy_value=this.fromDateValEnd.substring(0, 4);
+        let mmdd_value=this.fromDateValEnd.substring(5, this.fromDateValEnd.length);
+        mmdd_value=mmdd_value.replace('-','/');
+        let b = parseInt(yy_value);
+        b = b - 1911;
+        yy_value = b.toString()
+        this.compareDateEnd = yy_value + '/' + mmdd_value;
+      }
+      return this.fromDateValEnd;
     },
   },
 
@@ -484,6 +524,116 @@ export default {
     //dialog (val) {
     //  val || this.close()
     //},
+    compareDatePeriod(val) {
+      if (val!='') {
+        let tem_len=this.desserts.length;
+        for (let i=0; i < tem_len; i++) {
+          //this.desserts = this.desserts.filter(function( obj ) {
+          this.dessertsDisplay = this.dessertsDisplay.filter(function( obj ) {
+            let myVar2 = obj.stockInTag_reagPeriod.split('/');
+            let c2 = myVar2.map(str => {
+              return Number(str);
+            });
+
+            let myVar1 = val.split('/');
+            let c1 = myVar1.map(str => {
+              return Number(str);
+            });
+
+            console.log("效期, date: ", c1, c2)
+            if (c1[0] > c2[0])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] > c2[1])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] == c2[1] && c1[2] >= c2[2])
+                return obj;
+          });
+        }
+        this.dessertsDisplayForSelect =  Object.assign([],this.dessertsDisplay);
+
+        let removedEl=['全部'];
+        for (let i = 0; i < this.dessertsDisplay.length; i++) {
+          removedEl.push(this.dessertsDisplay[i].stockInTag_Employer)
+        }
+        this.itemsForEmployer = [...new Set(removedEl)];
+        this.selectedEmployers = Object.assign([], this.itemsForEmployer);
+        this.isAllSelected=true;
+
+        this.load_SingleTable_ok=false;
+      }
+    },
+
+    compareDate(val) {
+      if (val!='') {
+        let tem_len=this.desserts.length;
+        for (let i=0; i < tem_len; i++) {
+          //this.desserts = this.desserts.filter(function( obj ) {
+          this.dessertsDisplay = this.dessertsDisplay.filter(function( obj ) {
+            let myVar1 = obj.stockInTag_Date.split('/');
+            let c1 = myVar1.map(str => {
+              return Number(str);
+            });
+
+            let myVar2 = val.split('/');
+            let c2 = myVar2.map(str => {
+              return Number(str);
+            });
+
+            if (c1[0] > c2[0])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] > c2[1])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] == c2[1] && c1[2] >= c2[2])
+                return obj;
+          });
+        }
+        this.dessertsDisplayForSelect =  Object.assign([],this.dessertsDisplay);
+
+        let removedEl=['全部'];
+        for (let i = 0; i < this.dessertsDisplay.length; i++) {
+          removedEl.push(this.dessertsDisplay[i].stockInTag_Employer)
+        }
+        this.itemsForEmployer = [...new Set(removedEl)];
+        this.selectedEmployers = Object.assign([], this.itemsForEmployer);
+        this.isAllSelected=true;
+      }
+    },
+
+    compareDateEnd(val) {
+      if (val!='') {
+        let tem_len=this.desserts.length;
+        for (let i=0; i < tem_len; i++) {
+          //this.desserts = this.desserts.filter(function( obj ) {
+          this.dessertsDisplay = this.dessertsDisplay.filter(function( obj ) {
+            let myVar2 = obj.stockInTag_Date.split('/');
+            let c2 = myVar2.map(str => {
+              return Number(str);
+            });
+
+            let myVar1 = val.split('/');
+            let c1 = myVar1.map(str => {
+              return Number(str);
+            });
+
+            if (c1[0] > c2[0])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] > c2[1])
+                return obj;
+            if (c1[0] == c2[0] && c1[1] == c2[1] && c1[2] >= c2[2])
+                return obj;
+          });
+        }
+        this.dessertsDisplayForSelect =  Object.assign([],this.dessertsDisplay);
+
+        let removedEl=['全部'];
+        for (let i = 0; i < this.dessertsDisplay.length; i++) {
+          removedEl.push(this.dessertsDisplay[i].stockInTag_Employer)
+        }
+        this.itemsForEmployer = [...new Set(removedEl)];
+        this.selectedEmployers = Object.assign([], this.itemsForEmployer);
+        this.isAllSelected=true;
+      }
+    },
 
     load_SingleTable_ok(val) {
       console.log("load_SingleTable_ok, desserts: ", val)
@@ -493,22 +643,34 @@ export default {
         this.desserts =  JSON.parse(JSON.stringify(this.temp_desserts))
         this.desserts = this.desserts.map(v => ({...v, isGridChange: false})) //新增object內的key(isGridChange), false: grid資料沒有更改
         this.desserts = this.desserts.map(v => ({...v, editReagentID: ''}))   //新增object內的key(editReagentID)
+        this.desserts = this.desserts.map(v => ({...v, isEnter: false}))      //新增object內的key(editReagentID)
 
-        this.desserts = this.desserts.map(v => ({...v, isEnter: false}))   //新增object內的key(editReagentID)
+        this.dessertsDisplay = Object.assign([], this.desserts);
+
+        this.dessertsDisplayForSelect =  Object.assign([],this.dessertsDisplay);
+
+        let removedEl=['全部'];
+        for (let i = 0; i < this.dessertsDisplay.length; i++) {
+          removedEl.push(this.dessertsDisplay[i].stockInTag_Employer)
+        }
+        this.itemsForEmployer = [...new Set(removedEl)];
+        this.selectedEmployers = Object.assign([], this.itemsForEmployer);
+        this.isAllSelected=true;
 
         this.load_SingleTable_ok=false;
-        this.listUsers();
+        //this.listUsers();
       }
     },
-
+    /*
     load_2thTable_ok(val) {
-      console.log("load_2thTable_ok, usersSelected: ", val)
+      console.log("load_2thTable_ok, itemsForEmployer: ", val)
 
       if (val) {
         this.load_2thTable_ok=false;
-        this.usersSelected = this.temp_usersSelected.map(item => Object.values(item)[2]); //從object中copy value至array
+        this.itemsForEmployer = this.temp_itemsForEmployer.map(item => Object.values(item)[2]); //從object中copy value至array
       }
     },
+    */
     /*
     drawer: {
       handler: function() {
@@ -549,206 +711,6 @@ export default {
     initialize() {
       this.load_SingleTable_ok=false;
       this.listInventorys();
-
-      this.desserts = [
-        /*        
-        {
-          id: 1000,
-          stockInTag_reagID: '123456789',
-          stockInTag_reagName: 'ABC',
-          stockInTag_reagPeriod: '111/10/31',
-          stockInTag_reagTemp: '2~8度C',
-          stockInTag_Date: '111/06/01',
-          stockInTag_EmpID: 'N12345',
-          stockInTag_Employer: '陳健南',
-          stockInTag_grid: '1站/4層/6格',
-          stockInTag_cnt: 4,
-          stockInTag_comment: '',
-        },
-        {
-          id: 2,
-          stockInTag_reagID: '234567891',
-          stockInTag_reagName: 'ABCD',
-          stockInTag_reagPeriod: '111/12/31',
-          stockInTag_reagTemp: '2~8度C',
-          stockInTag_Date: '111/06/01',
-          stockInTag_EmpID: 'N12345',
-          stockInTag_Employer: '陳健南',
-          stockInTag_grid: '2站/4層/6格',
-          //stockInTag_batch: '1110012345C123400055',
-          stockInTag_cnt: 2,
-          stockInTag_comment: '',
-        },
-        {
-          id: 3,
-          stockInTag_reagID: '234567892',
-          stockInTag_reagName: 'A11',
-          stockInTag_reagPeriod: '111/12/31',
-          stockInTag_reagTemp: '2~8度C',
-          stockInTag_Date: '111/06/01',
-          stockInTag_EmpID: 'N12345',
-          stockInTag_Employer: '陳健南',
-          stockInTag_grid: '3站/4層/6格',
-          //stockInTag_batch: '1110012345B123400033',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 4,
-          stockInTag_reagID: '234567893',
-          stockInTag_reagName: 'A12',
-          stockInTag_reagPeriod: '112/6/30',
-          stockInTag_reagTemp: '2~8度C',
-          stockInTag_Date: '111/06/01',
-          stockInTag_EmpID: 'N12345',
-          stockInTag_Employer: '陳健南',
-          stockInTag_grid: '1站/1層/6格',
-          //stockInTag_batch: '1110012345B123400033',
-          stockInTag_cnt: 1,
-          stockInTag_comment: '',
-        },
-        {
-          id: 5,
-          stockInTag_reagID: '234567894',
-          stockInTag_reagName: 'B2233',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '2~8度C',
-          stockInTag_Date: '111/06/01',
-          stockInTag_EmpID: 'N12345',
-          stockInTag_Employer: '陳健南',
-          stockInTag_grid: '1站/2層/6格',
-          //stockInTag_batch: '1110012345B123400022',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 6,
-          stockInTag_reagID: '234567897',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/03/10',
-          stockInTag_EmpID: 'T12345',
-          stockInTag_Employer: '林成興',
-          stockInTag_grid: '1站/3層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 1,
-          stockInTag_comment: '',
-        },
-        {
-          id: 7,
-          stockInTag_reagID: '234567898',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/03/10',
-          stockInTag_EmpID: 'T12345',
-          stockInTag_Employer: '林成興',
-          stockInTag_grid: '1站/4層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 8,
-          stockInTag_reagID: '234567899',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/03/10',
-          stockInTag_EmpID: 'T12345',
-          stockInTag_Employer: '林成興',
-          stockInTag_grid: '1站/5層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 5,
-          stockInTag_comment: '',
-        },
-        {
-          id: 9,
-          stockInTag_reagID: '214567897',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/03/10',
-          stockInTag_EmpID: 'T12345',
-          stockInTag_Employer: '林成興',
-          stockInTag_grid: '2站/1層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 10,
-          stockInTag_reagID: '214567898',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/03/10',
-          stockInTag_EmpID: 'T12345',
-          stockInTag_Employer: '林成興',
-          stockInTag_grid: '2站/2層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 2,
-          stockInTag_comment: '',
-        },
-        {
-          id: 11,
-          stockInTag_reagID: '214567899',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/06/25',
-          stockInTag_EmpID: 'T87654',
-          stockInTag_Employer: '吳仲偉',
-          stockInTag_grid: '2站/3層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 12,
-          stockInTag_reagID: '224567897',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/06/25',
-          stockInTag_EmpID: 'T87654',
-          stockInTag_Employer: '吳仲偉',
-          stockInTag_grid: '3站/4層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 20,
-          stockInTag_comment: '',
-        },
-        {
-          id: 13,
-          stockInTag_reagID: '224567898',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/06/25',
-          stockInTag_EmpID: 'T87654',
-          stockInTag_Employer: '吳仲偉',
-          stockInTag_grid: '3站/1層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        {
-          id: 14,
-          stockInTag_reagID: '224567899',
-          stockInTag_reagName: 'B3344',
-          stockInTag_reagPeriod: '111/8/31',
-          stockInTag_reagTemp: '常溫',
-          stockInTag_Date: '111/06/25',
-          stockInTag_EmpID: 'T87654',
-          stockInTag_Employer: '吳仲偉',
-          stockInTag_grid: '3站/2層/6格',
-          //stockInTag_batch: '1110012345A123400001',
-          stockInTag_cnt: 10,
-          stockInTag_comment: '',
-        },
-        */
-      ];
     },
 
     listInventorys() {    //從後端讀取dataTable的資料
@@ -757,7 +719,7 @@ export default {
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;    //true: dataTable的資料ok
       })
       .catch((error) => {
@@ -766,31 +728,13 @@ export default {
       });
     },
 
-    listUsers() { 
-      const path = '/listUsers';
-      console.log("listUsers, Axios get data...")
-      axios.get(path)
-      .then((res) => {
-        this.temp_usersSelected = res.data.outputs.filter(function( obj ) {
-          return obj.emp_perm != 0;
-        });
-
-        console.log("GET ok, total records:", res.data.outputs.length);        
-        this.load_2thTable_ok=true;
-      })
-      .catch((error) => {
-        console.error(error);
-        this.load_2thTable_ok=false;
-      });
-    },
-
     exportToExcel() {
-      console.log("Inventory, exportToExcel, Axios post data...");      
+      console.log("Inventory, exportToExcel, Axios post data...");
 
       let obj= {
         id: 'ID',
         stockInTag_reagID: '資材碼',
-        stockInTag_reagName: '品名', 
+        stockInTag_reagName: '品名',
         stockInTag_reagPeriod: '效期',
         stockInTag_reagTemp: '保存溫度',
         stockInTag_Date: '入庫日期',
@@ -806,15 +750,17 @@ export default {
         //isGridChange: false,
       }
 
-      let object_Desserts = Object.assign([], this.desserts);
+      //let object_Desserts = Object.assign([], this.desserts);
+      let object_Desserts = Object.assign([], this.dessertsDisplay);
       object_Desserts.unshift(obj);
 
       const path = '/exportToExcelForInv';
       var payload= {
         blocks: object_Desserts,
-        count: this.desserts.length+1,
+        //count: this.desserts.length+1,
+        count: object_Desserts.length,
         name: this.currentUser.name,
-      };      
+      };
       axios.post(path, payload)
       .then((res) => {
         console.log("export into excel status: ", res.data.status, res.data.outputs)
@@ -826,27 +772,27 @@ export default {
         } else {
           this.snackbar_color='red accent-2';
           this.snackbar=true;
-          this.snackbar_info= '儲位重複!';
+          this.snackbar_info= '存檔錯誤!';
           this.snackbar_icon_color= '#adadad';
         }
       })
       .catch((error) => {
-        console.error("axios error, code: ",error); 
+        console.error("axios error, code: ",error);
         this.snackbar_color='red accent-2';
         this.snackbar=true;
         this.snackbar_info= '存檔錯誤!';
         this.snackbar_icon_color= '#adadad';
-      });     
+      });
     },
-    
+
     updateStockInDataByInv() {
-      console.log("Inventory, updateStockInDataByInv, Axios post data...");      
+      console.log("Inventory, updateStockInDataByInv, Axios post data...");
 
       const path = '/updateStockInDataByInv';
       var payload= {
         blocks: this.desserts,
         count: this.desserts.length,
-      };      
+      };
       axios.post(path, payload)
       .then((res) => {
         console.log("update inTag data status: ", res.data.status)
@@ -863,13 +809,64 @@ export default {
         }
       })
       .catch((error) => {
-        console.error("axios error, code: ",error); 
+        console.error("axios error, code: ",error);
         this.snackbar_color='red accent-2';
         this.snackbar=true;
         this.snackbar_info= '存檔錯誤!';
         this.snackbar_icon_color= '#adadad';
-      });     
+      });
 
+    },
+
+    checkSelect(e) {
+      let ck=e.includes('全部');
+      console.log('Select... ', e, ck, this.isAllSelected);
+      if (ck) {  //press全部, 且不是全部的狀態
+        //this.selectedEmployers = [];
+        if (this.isAllSelected) {
+          this.isAllSelected = false;
+          this.selectedEmployers = [];
+          for (let i=1; i<e.length; i++) {
+            this.selectedEmployers.push(e[i])
+          }
+        } else {
+          console.log('Select all...');
+          this.selectedEmployers = [];
+          this.isAllSelected = true;
+          for (let i=0; i<this.itemsForEmployer.length; i++) {
+            this.selectedEmployers.push(this.itemsForEmployer[i])
+          }
+        }
+      } else if (this.isAllSelected) {  //取消全部, 且不是全部的狀態
+        console.log('Remove all...');
+        this.selectedEmployers = [];
+        this.isAllSelected = false;
+      } else {  //取消全部, 且不是全部的狀態
+        console.log('Click some item...');
+        this.selectedEmployers = [];
+        for (let i=0; i<e.length; i++) {
+          let jj=this.itemsForEmployer.includes(e[i])
+          console.log('item1...', jj);
+          if (jj) {
+            this.selectedEmployers.push(e[i])
+            console.log('item2...', e[i]);
+          }
+        }
+        //console.log('length...', e.length, this.itemsForEmployer.length);
+        if (e.length==this.itemsForEmployer.length-1) {
+          console.log('Hello end...');
+          this.selectedEmployers.unshift('全部')
+          this.isAllSelected = true;
+        }
+      } //end else if
+
+      console.log('item3...');
+
+      if (this.selectedEmployers != []) {
+        console.log('item4...');
+        //this.dessertsDisplay = this.desserts.filter(val => this.selectedEmployers.includes(val.stockInTag_Employer));
+        this.dessertsDisplay = this.dessertsDisplayForSelect.filter(val => this.selectedEmployers.includes(val.stockInTag_Employer));
+      }
     },
 
     filterOnlyCapsText (value, search, item) {
@@ -883,9 +880,10 @@ export default {
       //this.editName='' + this.num1 +'站/' + '' + this.num2 + '層/' + '' + this.num3 + '格'
       //this.editName='' + this.num1 +'站' + this.num2 + '層' + this.num3 + '格'
       this.editName=this.num1 +'站' + this.num2 + '層' + this.num3 + '格'
-      this.editedIndex = this.desserts.indexOf(item);
-
-      //console.log(this.temp_desserts[this.editedIndex].stockInTag_grid, this.desserts[this.editedIndex].stockInTag_grid, this.editName, this.desserts[this.editedIndex].stockInTag_grid==this.editName, this.desserts[this.editedIndex].stockInTag_grid==this.temp_desserts[this.editedIndex].stockInTag_grid);
+      //this.editedIndex = this.desserts.indexOf(item);                           //for desserts
+      this.editedIndex = this.desserts.map(object => object.id).indexOf(item.id); //for dessertsDisplay
+      console.log("saveName, index: ", this.editedIndex);
+      //確認儲位已經修改, isGridChange=true
       if (this.temp_desserts[this.editedIndex].stockInTag_grid != this.editName) {
         this.desserts[this.editedIndex].isGridChange=true;
       }
@@ -910,7 +908,7 @@ export default {
     //* },
 
     //* cancelName() {
-    //* 
+    //*
     //* },
 
     setRowStyle(item) {
@@ -930,7 +928,7 @@ export default {
 
       if (temp_int1!=temp_int2 && temp_int1!=0 && temp_str==item.stockInTag_reagID) {
         //console.log("1-1, hello writeComm..", item.stockInTag_reagID, this.clickTimes)
-        item.stockInTag_comment="異常! "        
+        item.stockInTag_comment="異常! "
         item.editReagentID=item.stockInTag_reagID;
         return;
       }
@@ -957,7 +955,7 @@ export default {
       let temp_int2=parseInt(item.stockInTag_cnt);
 
       if (temp_int1!=temp_int2 && temp_int1!=0 && this.clickTimes!=0) {
-        item.stockInTag_comment="異常! "        
+        item.stockInTag_comment="異常! "
         item.editReagentID=item.stockInTag_reagID;
         return;
       }
@@ -972,7 +970,7 @@ export default {
       //if (temp_str!=item.stockInTag_reagID)
         item.editReagentID='';
       //else {
-      //  item.stockInTag_comment="異常! " 
+      //  item.stockInTag_comment="異常! "
       // temp_int1= temp_int1 + 1;
       //}
     },
@@ -997,19 +995,25 @@ export default {
     },
 
     getData(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      //this.editedIndex = this.desserts.indexOf(item);                           //for desserts
+      this.editedIndex = this.desserts.map(object => object.id).indexOf(item.id); //for dessertsDisplay
+      console.log("getData, index: ", this.editedIndex);
+
       if (this.temp_desserts[this.editedIndex].stockInTag_cnt != item.stockInTag_cnt) {
         this.desserts[this.editedIndex].isGridChange=true;
       }
-      console.log("cnt data: ", this.temp_desserts[this.editedIndex].stockInTag_cnt, item.stockInTag_cnt);
+      //console.log("cnt data: ", this.temp_desserts[this.editedIndex].stockInTag_cnt, item.stockInTag_cnt);
     },
 
     getComment(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      //this.editedIndex = this.desserts.indexOf(item);                             //for desserts
+      this.editedIndex = this.desserts.map(object => object.id).indexOf(item.id); //for dessertsDisplay
+      console.log("getComment, index: ", this.editedIndex);
+
       if (this.temp_desserts[this.editedIndex].stockInTag_comment != item.stockInTag_comment) {
         this.desserts[this.editedIndex].isGridChange=true;
       }
-      console.log("comment data: ", this.temp_desserts[this.editedIndex].stockInTag_comment, item.stockInTag_comment);
+      //console.log("comment data: ", this.temp_desserts[this.editedIndex].stockInTag_comment, item.stockInTag_comment);
     },
 
     //combineCount(item) {
@@ -1038,7 +1042,7 @@ export default {
       console.log("leave onWaitTags()...");
     },
     */
-    
+
     //* printSection() {
     //*   console.log("click, printSection()...");
     //*   this.drawer=true;
@@ -1047,28 +1051,28 @@ export default {
     //*     name: 'RenderBarCode',
     //*     params: {
     //*       selectDatas: this.selected,
-    //*     }        
+    //*     }
     //*   });
-    //*   */      
+    //*   */
     //* },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
-    },    
+      this.$router.push('/navbar');
+    },
   },
 }
 </script>
 
 <style>
 :root {
-  --bar: scroll;  
+  --bar: scroll;
 }
 
 html {
-  overflow-y: var(--bar) !important; 
-} 
+  overflow-y: var(--bar) !important;
+}
 </style>
 
 <style lang="scss" scoped>
@@ -1082,7 +1086,7 @@ div.v-toolbar__title {
 }
 
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {
@@ -1097,10 +1101,13 @@ div.v-toolbar__title {
   font-weight: bold;
 }
 
+::v-deep input::placeholder {
+  font-size: 14px;
+}
+
 ::v-deep .v-input.myText input {
   font-size: 0.7em;
 }
-
 
 ::v-deep .row_myText_inv {
   /*width: 100%;*/
@@ -1108,7 +1115,7 @@ div.v-toolbar__title {
   margin: 0 8px;
   display: flex;
   justify-content: center; /* for centering 3 blocks in the center */
-  /* justify-content: space-between; for space in between */ 
+  /* justify-content: space-between; for space in between */
 }
 
 ::v-deep .block_myText_inv_cnt {
@@ -1164,16 +1171,16 @@ div.v-toolbar__title {
   color: #1f4788 !important;
 }
 
-::v-deep header { 
+::v-deep header {
   height: 48px !important;
   margin-top: 10px !important;
 }
 
-::v-deep .v-toolbar__content { 
+::v-deep .v-toolbar__content {
   height: 42px !important;
 }
 
-::v-deep .v-toolbar__title { 
+::v-deep .v-toolbar__title {
   height: 40px !important;
 }
 
@@ -1212,40 +1219,76 @@ div.v-toolbar__title {
 }
 
 ::v-deep div.v-input.style-2 > .v-input__control > .v-input__slot > .v-text-field__slot > input {
-  max-width: 100px !important;
-  width: 100px !important;
+  max-width: 70px !important;
+  width: 70px !important;
 }
 
 ::v-deep div.v-input.style-2 > .v-input__control > .v-input__slot {
-  max-width: 100px !important;
-  width: 100px !important;
+  max-width: 70px !important;
+  width: 70px !important;
 }
 
 ::v-deep div.v-input.style-3 > .v-input__control > .v-input__slot > .v-text-field__slot > input {
-  max-width: 100px !important;
-  width: 100px !important;
+  max-width: 120px !important;
+  width: 120px !important;
 }
 
 ::v-deep div.v-input.style-3 > .v-input__control > .v-input__slot {
-  max-width: 100px !important;
-  width: 100px !important;
-}
-
-::v-deep div.v-input.style-4 > .v-input__control > .v-input__slot > .v-select__slot > .v-select__selections > input {
   max-width: 120px !important;
   width: 120px !important;
+}
+/*-- for v-select begin--*/
+::v-deep div.v-input.style-4 > .v-input__control >.v-input__slot > .v-select__slot > .v-select__selections > input {
+  max-width: 100px !important;
+  width: 120px !important;
+  height: 40px !important;
+
+  //text-overflow: ellipsis;
+  //white-space: nowrap;
+
+  overflow-y: hidden !important;
+}
+
+::v-deep div.v-input.style-4 > .v-input__control >.v-input__slot > .v-select__slot > .v-label {
+  margin-top: 4px;
+  top: 12px;
+  font-size: 16px;;
+}
+
+::v-deep .v-list--dense .v-list-item, .v-list-item--dense {
+    min-height: 30px !important;
+    height: 30px !important;
+}
+::v-deep .v-select.v-input--dense .v-select__selection--comma {
+  font-size: 12px !important;
+  margin: 5px 4px 3px 0 !important;
 }
 
 ::v-deep div.v-input.style-4 > .v-input__control > .v-input__slot {
-  max-width: 120px !important;
+  max-width: 100px !important;
   width: 120px !important;
+  height: 40px !important;
+
+  overflow-y: hidden !important;
 }
 
+::v-deep div.v-input.style-4 > .v-input__control > .v-input__slot > .v-select__slot > .v-select__selections {
+  max-width: 100px !important;
+  width: 120px !important;
+  height: 40px !important;
+
+  //text-overflow: ellipsis;
+  //white-space: nowrap;
+
+  overflow-y: hidden !important;
+  margin-top: 12px !important;
+}
+/*-- for v-select end--*/
 ::v-deep .centered-input > .v-input__control> .v-input__slot > .v-text-field__slot > input {
   text-align: center;
 }
 
-::v-deep .v-tooltip__content {  
+::v-deep .v-tooltip__content {
   margin-top: -30px !important;
   font-size: 12px !important;
 }
@@ -1267,7 +1310,6 @@ div.v-toolbar__title {
 ::v-deep .v-data-table__wrapper > table > tbody > tr > td:nth-last-child(2) > .v-input > .v-input__control > .v-input__slot > .v-text-field__slot > input {
   text-align: start;
 }
-
 
 /*
 ::v-deep th[role=columnheader] > span {

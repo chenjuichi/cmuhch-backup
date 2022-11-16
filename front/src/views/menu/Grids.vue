@@ -6,8 +6,8 @@
         <v-data-table
           :headers="headers"
           :items="desserts"
-          class="elevation-1"        
-          :options.sync="pagination"        
+          class="elevation-1"
+          :options.sync="pagination"
           :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
@@ -15,7 +15,7 @@
               <v-toolbar-title>儲位資料</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="800px" content-class="add_modalbox">
+              <v-dialog v-model="dialog" max-width="800px" :content-class='temp_css'>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon left dark>mdi-table-plus</v-icon>
@@ -32,9 +32,9 @@
                       <!-- 第1列-->
                       <v-row>
                         <v-col cols="12" md="4">
-                          <v-tooltip v-model="errorShow" top color="error">                        
+                          <v-tooltip v-model="errorShow" top color="error">
                             <template v-slot:activator="{ on, attrs }">
-                              <v-text-field                            
+                              <v-text-field
                                 v-model="editedItem.grid_reagID"
                                 label="資材碼"
                                 prepend-icon="mdi-alphabetical"
@@ -51,7 +51,7 @@
                             prepend-icon="mdi-hospital-box-outline"
                             readonly
                           ></v-text-field>
-                        </v-col>                                            
+                        </v-col>
                       </v-row>
 
                       <!-- 第2列-->
@@ -63,11 +63,11 @@
                         <v-col cols="12" md="4">
                           <div style="color: #007bff; font-weight: 800;">層別</div>
                           <vue-numeric-input  v-model="editedItem.grid_layout" :min="1" :max="5" :step="1"></vue-numeric-input>
-                        </v-col>              
+                        </v-col>
                         <v-col cols="12" md="4">
                           <div style="color: #007bff; font-weight: 800;">格位別</div>
                           <vue-numeric-input  v-model="editedItem.grid_pos" :min="1" :max="10" :step="1"></vue-numeric-input>
-                        </v-col>            
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -115,7 +115,7 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
@@ -124,8 +124,8 @@
             <v-toolbar
               color="primary"
               dark
-            >錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            >錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">使用這項功能, 請通知管理人員...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -184,22 +184,22 @@ export default {
     toster_delay:3,
 
     //資料表頭
-    headers: [      
+    headers: [
       //{ text: 'ID', sortable: false, value: 'id', width: '10%', align: 'start'},
       { text: '資材碼', sortable: true, value: 'grid_reagID', width: '10%' },
       { text: '品名', sortable: false, value: 'grid_reagName', width: '10%' },
       { text: '站別', sortable: true, value: 'grid_station', width: '10%' },
       { text: '層別', sortable: false, value: 'grid_layout', width: '10%' },
       { text: '格位別', sortable: false, value: 'grid_pos', width: '10%' },
-      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },        
+      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },
     ],
-    
+
     reagent_Desserts: [
       /*
       {
         //id: 1,
         reag_id: '123456789',
-        reag_name: 'ABC',         
+        reag_name: 'ABC',
       },
       {
         //id: 2,
@@ -280,15 +280,15 @@ export default {
       grid_station: 1,
       grid_layout: 1,
       grid_pos: 1,
-      grid_id:0,     
+      grid_id:0,
     },
     defaultItem: {
       grid_reagID: '',
       grid_reagName: '',
       grid_station: 1,
       grid_layout: 1,
-      grid_pos: 1,     
-      grid_id:0,     
+      grid_pos: 1,
+      grid_id:0,
     },
 
     load_SingleTable_ok: false, //for get grids table data
@@ -299,36 +299,36 @@ export default {
     formTitle () {
       return this.editedIndex === -1 ? '新增資料' : '編輯資料'
     },
-    fromReagIdDisp () { 
+    fromReagIdDisp () {
       if (this.editedItem.grid_reagID != '') {
         console.log("result 1...");
         const result = this.reagent_Desserts.find(x => x.reag_id === this.editedItem.grid_reagID);
         //this.reagent_Desserts.find(x => x.reag_id === this.editedItem.grid_reagID || { value: null }).value;
-        //console.log("value: ", value, typeof(value)); 
+        //console.log("value: ", value, typeof(value));
         console.log("result 1-2...", result);
-                    
+
         if (result != 'undefined' && result != null) {
           console.log("result 2...", result);
           let val= Object.values(result);
           this.editedItem.grid_reagName=val[1];
           this.errorShow=false;
-          console.log("result: ", result, typeof(result), val[1]);             
-          return val[1];          
+          console.log("result: ", result, typeof(result), val[1]);
+          return val[1];
         } else {
           this.editedItem.grid_reagName='';
           this.errorShow=true;
           return '';
-        }        
-      } 
+        }
+      }
     },
-    
+
     checkDataForSaveButton() {
       if (!!this.editedItem.grid_reagID && !!this.editedItem.grid_reagName) {
         return false;
       } else {
         return true
       }
-    },    
+    },
   },
 
   watch: {
@@ -378,13 +378,13 @@ export default {
 
     },
 
-    listGrids() { 
+    listGrids() {
       const path = '/listGrids';
       console.log("listGrids, Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
@@ -393,15 +393,15 @@ export default {
       });
     },
 
-    listReagents() { 
+    listReagents() {
       const path = '/listReagents';
       console.log("grids, listReagents(), Axios get data...")
       axios.get(path)
-      .then((res) => {        
-        let temp_len=res.data.outputs.length        
+      .then((res) => {
+        let temp_len=res.data.outputs.length
         for (let i=0; i<temp_len; i++) {
           let temp_obj = {
-            reag_id: res.data.outputs[i]['reag_id'], 	
+            reag_id: res.data.outputs[i]['reag_id'],
             reag_name: res.data.outputs[i]['reag_name'],
           }
           this.temp_reagent_Desserts.push(temp_obj);
@@ -412,7 +412,7 @@ export default {
         console.error(error);
         this.load_2thTable_ok=false;
       });
-    },    
+    },
 
     editItem (item) {
       this.editedIndex = this.desserts.indexOf(item);
@@ -428,7 +428,7 @@ export default {
 
     deleteItemConfirm () {
       //console.log("reagend id , grid id: ", this.editedItem.grid_reagID, this.editedItem.grid_id)
-      
+
       this.removeGrid(this.editedItem.grid_reagID, this.editedItem.grid_id);
 
       if (!this.tosterOK) {
@@ -437,7 +437,7 @@ export default {
 
         this.closeDelete()
       }
-      
+
     },
 
     close () {
@@ -470,7 +470,7 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem);
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
           console.error(err)
@@ -496,9 +496,9 @@ export default {
 
     updateGrid(object) {  //編輯 reagent and grid後端table資料
       console.log("---click update_grid data---", object);
-      
+
       const path='/updateGrid';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("update reagent and grid data/LINK status: ", res.data.status)
@@ -507,14 +507,14 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem)
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
+        }
       })
       .catch(err => {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
         //this.registerOK= false;
       });
-      
+
     },
 
     createGrid(object) {  //新增 reagent後端table資料
@@ -522,11 +522,11 @@ export default {
 
       //const defaultPassword='a12345678';
       const path='/createGrid';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("save grid data/LINK status: ", res.data.status)
-        
+
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -537,13 +537,13 @@ export default {
       .catch(err => {
         console.error(err);
       });
-    },    
+    },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
-    }, 
+      this.$router.push('/navbar');
+    },
   },
 }
 </script>
@@ -559,7 +559,7 @@ div.v-toolbar__title {
 }
 
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {

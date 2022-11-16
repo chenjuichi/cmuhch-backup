@@ -418,6 +418,7 @@ def list_requirements_data():
 def list_stock_records():
     print("listStockRecords....")
     s = Session()
+    temp_kk = 1  # 紀錄筆數id, 起始值=1
     _results = []
     _objects = s.query(InTag).all()
     # grids = [u.__dict__ for u in _objects]
@@ -431,6 +432,7 @@ def list_stock_records():
             _grid = s.query(Grid).filter_by(id=intag.grid_id).first()
 
             _obj = {
+                'id': temp_kk,
                 'stkRecord_reagID': _reagent.reag_id,         # 資材碼
                 'stkRecord_reagName': _reagent.reag_name,     # 品名
                 'stkRecord_supplier': _supplier.super_name,   # 供應商
@@ -438,12 +440,21 @@ def list_stock_records():
                 'stkRecord_period': _reagent.reag_period,     # 效期
                 # 安全存量
                 'stkRecord_saftStockUnit': str(_reagent.reag_stock) + _reagent.reag_In_unit,
+                'stkRecord_saftStock': str(_reagent.reag_stock),  # 安全存量, 數量
+
                 # 在庫數量
                 'stkRecord_cntUnit': str(intag.count) + _reagent.reag_In_unit,
+                # 'stkRecord_s_unit': _reagent.reag_In_unit,  # 入庫單位
+                'stkRecord_scale': _reagent.reag_scale,     # 比例
+                'stkRecord_inStock_count': str(intag.count),
+                # 安全存量與在庫數量的單位
+                'stkRecord_unit': _reagent.reag_In_unit,
+
                 'stkRecord_grid': _grid.station + '站' + _grid.layout + '層' + _grid.pos + '格'
             }
 
             _results.append(_obj)
+            temp_kk += 1
 
     s.close()
     return jsonify({

@@ -7,21 +7,21 @@
             <h2>
               <img :src="home_url"  alt="..." style="height: 4vw; margin-bottom: 10px;">
               {{ '冷藏藥倉系統' }}
-            </h2>          
+            </h2>
             <button class="invert" id="signIn" @click="signUp = !signUp">登入</button>
           </div>
-          
-          <div class="overlay-right">          
+
+          <div class="overlay-right">
             <h2>
               <img :src="home_url"  alt="..." style="height: 4vw; margin-bottom: 10px;">
               {{ '冷藏藥倉系統' }}
-            </h2>          
+            </h2>
             <button class="invert" id="signUp" @click="signUp = !signUp">註冊</button>
           </div>
         </div>
       </div>
       <div class="sign-up">
-        <h3>{{ '註冊' }}</h3>     
+        <h3>{{ '註冊' }}</h3>
         <v-text-field
           id="registerEmpID"
           label="員工編號"
@@ -29,11 +29,11 @@
           class="text-teal"
           prepend-icon="mdi-account"
           type="text"
-          required        
-          v-model='registerUser.empID' 
+          required
+          v-model='registerUser.empID'
         />
         <!-- {{ ErrMsg }} -->
-        <small class="msgErr" v-text= "empIDErrMsg"></small>    
+        <small class="msgErr" v-text= "empIDErrMsg"></small>
 
         <v-text-field
           id="registerName"
@@ -42,22 +42,22 @@
           class="text-teal"
           prepend-icon="mdi-account-edit"
           type="text"
-          required        
-          v-model='registerUser.name'         
+          required
+          v-model='registerUser.name'
         />
         <!-- {{ ErrMsg }} -->
         <small class="msgErr" v-text= "nameErrMsg"></small>
 
         <v-select
-          
-          :items="desserts"     
+
+          :items="desserts"
           label="組別"
           name="Dep"
           class="text-teal"
-          prepend-icon="mdi-account-group"          
+          prepend-icon="mdi-account-group"
           required
-          v-model='registerUser.dep' 
-        ></v-select>       
+          v-model='registerUser.dep'
+        ></v-select>
         <!--
         <v-text-field
           id="registerDep"
@@ -66,13 +66,13 @@
           class="text-teal"
           prepend-icon="mdi-email"
           type="text"
-          required      
-          v-model='registerUser.dep'         
+          required
+          v-model='registerUser.dep'
         />
-        -->      
+        -->
         <!-- {{ ErrMsg }} -->
         <!--
-        <small v-text= "depErrMsg"></small>       
+        <small v-text= "depErrMsg"></small>
         -->
         <v-text-field
           id="registerPassword"
@@ -84,10 +84,10 @@
           :append-icon="eyeShow1 ? 'mdi-eye-off' : 'mdi-eye'"
           @click:append="() => (eyeShow1 = !eyeShow1)"
           :type="eyeShow1 ? 'password' : 'text'"
-          v-model='registerUser.password' 
+          v-model='registerUser.password'
         />
         <!-- {{ ErrMsg }} -->
-        <small class="msgErr" v-text= "passwordErrMsg"></small>       
+        <small class="msgErr" v-text= "passwordErrMsg"></small>
 
         <v-text-field
           id="registerConfirmPassword"
@@ -98,7 +98,7 @@
           required
           :type="eyeShow1 ? 'password' : 'text'"
           :rules="[passwordConfirmationRule]"
-          v-model='registerUser.confirmPassword' 
+          v-model='registerUser.confirmPassword'
         />
 
         <!-- {{ ErrMsg }} -->
@@ -107,10 +107,10 @@
               Hello, world! This is a toast message.
         </b-toast>
         -->
-        <Toaster v-show="tosterRegOK" 
-          :Title="tosterTitlt" 
-          :Type="tosterType" 
-          :Body="tosterBody" 
+        <Toaster v-show="tosterRegOK"
+          :Title="tosterTitlt"
+          :Type="tosterType"
+          :Body="tosterBody"
           :Timeout="tosterTimeout"
            @removeToaster="onRemoveToaster"
         >
@@ -122,18 +122,18 @@
       </div>
 
       <div class="sign-in">
-        <h3>{{ '登入' }}</h3>        
+        <h3>{{ '登入' }}</h3>
         <v-text-field
           id="loginEmpID"
           label="員工編號"
           name="EmpID"
           class="text-teal"
           prepend-icon="mdi-account"
-          type="text"             
-          v-model='loginEmpID' 
+          type="text"
+          v-model='loginEmpID'
         />
 
-        <v-text-field 
+        <v-text-field
           id="loginPassword"
           label="密碼"
           name="Password"
@@ -142,17 +142,17 @@
           :append-icon="eyeShow ? 'mdi-eye-off' : 'mdi-eye'"
           @click:append="() => (eyeShow = !eyeShow)"
           :type="eyeShow ? 'password' : 'text'"
-          v-model='loginPassword' 
+          v-model='loginPassword'
           @keyup.enter="signin"
         />
         <!--<a href="#">{{ '忘記密碼' }}</a>-->
 
         <!-- {{ ErrMsg }} -->
         <!--<small class="clickLgnErr" v-text= "clickLoginErrMsg"></small> -->
-        <Toaster v-show="tosterOK" 
-          :Title="tosterTitlt" 
-          :Type="tosterType" 
-          :Body="tosterBody" 
+        <Toaster v-show="tosterOK"
+          :Title="tosterTitlt"
+          :Type="tosterType"
+          :Body="tosterBody"
           :Timeout="tosterTimeout"
            @removeToaster="onRemoveToaster"
         >
@@ -246,8 +246,8 @@ export default {
     /*
     let _host=window.location.host;
     _host = _host.slice(0, _host.lastIndexOf(":"));
-    let _protocol=window.location.protocol;            
-    axios.defaults.baseURL = _protocol + "//"+ _host + ':5050';     //for backend server    
+    let _protocol=window.location.protocol;
+    axios.defaults.baseURL = _protocol + "//"+ _host + ':5050';     //for backend server
     //axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';   //確認request是否為XHR(XML Http Request)或者是正常的请求
 
     //axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -295,25 +295,32 @@ export default {
 
     load_SingleTable_ok(val) {
       if (val) {
-        this.desserts = Object.assign([], this.temp_desserts);
+        this.desserts = this.temp_desserts.map(item => Object.values(item)[0]); //從object中copy value至array
+
+        //this.desserts = Object.assign([], this.temp_desserts);
       }
     },
 
-    'registerUser.empID': function () {  
+    'registerUser.empID': function (val) {
       let isEmpIDRule = /^[A,D,N,T][0-9]{5}$/;
-
+      console.log("1. user: ", val);
       this.empIDErrMsg = '';
-      let result = this.registerUser.empID.search(isEmpIDRule);
-      let len=this.editedItem.empID.length
+      //let result = this.registerUser.empID.search(isEmpIDRule);
+      let result = val.search(isEmpIDRule);
+            console.log("2. user: ", val);
 
-      if (result != -1 || len==0) {
+      //let len=this.editedItem.empID.length
+      //let len=val.empID.length
+
+      //if (result != -1 || len==0) {
+      if (result != -1) {
         this.empIDErrMsg = '';
       } else {
         this.empIDErrMsg = '員工編號資料格式錯誤!';
-      }      
+      }
     },	//end 'empID': function()
 
-    'registerUser.name': function () {  
+    'registerUser.name': function () {
       let isNameRule = /^[\u4e00-\u9fa5_a-zA-Z]+$/;
 
       this.nameErrMsg = '';
@@ -325,9 +332,9 @@ export default {
       if (result==-1 || len>10) {
           this.nameErrMsg = '資料格式錯誤或資料長度太長!';
       }
-    },	//end 'name': function()    
+    },	//end 'name': function()
     /*
-    'registerUser.dep': function () {  
+    'registerUser.dep': function () {
       let isDepRule = /^[\u4e00-\u9fa5_a-zA-Z0-9]+$/;
 
       this.depErrMsg = '';
@@ -339,7 +346,7 @@ export default {
       if (result==-1 || len > 20) {
         this.depErrMsg = '資料格式錯誤或資料長度太長!';
       }
-    },	//end 'dep': function()  
+    },	//end 'dep': function()
     */
     'registerUser.password': function () {
       //Regular expression Testing
@@ -362,12 +369,12 @@ export default {
       console.log("password regular: ", result);
 
       if (result != -1) {
-        this.passwordErrMsg = '';        
+        this.passwordErrMsg = '';
       } else {
-        this.passwordErrMsg = '資料格式或資料長度錯誤!';        
+        this.passwordErrMsg = '資料格式或資料長度錯誤!';
       }
-    },  //end 'password': function() 
-  }, 
+    },  //end 'password': function()
+  },
 
   methods: {
     onRemoveToaster(val) {
@@ -380,14 +387,14 @@ export default {
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length, res.data.outputs);
         this.load_SingleTable_ok = true;  //true: 資料download成功
       })
       .catch((error) => {
         console.error(error);
         this.load_SingleTable_ok = false;
       });
-      
+
       /*
       this.desserts = [
         {
@@ -482,7 +489,7 @@ export default {
         this.registerOK= false;
       });
 
-      //this.signUp=false;  //註冊OK, 則轉為登入畫面      
+      //this.signUp=false;  //註冊OK, 則轉為登入畫面
     },
 
     userLogin() {
@@ -522,12 +529,12 @@ export default {
       let isAuthenticated=true;
       this.setAuthenticated(isAuthenticated);
       this.setLoginUser();
-      this.$router.push('/navbar'); 
+      this.$router.push('/navbar');
     },
 
     removeLoginUser() {
       localStorage.removeItem('loginedUser');
-    },    
+    },
 
     setLoginUser() {
       ////this.editedIndex = this.desserts.indexOf(item)
@@ -537,7 +544,7 @@ export default {
 
       localStorage.setItem('totalTags', 0);   //待入庫列印標籤總數清為0
 
-      console.log("---click_signin---", this.loginedUser);      
+      console.log("---click_signin---", this.loginedUser);
     },
 
     setAuthenticated(isLogin) {
@@ -678,7 +685,7 @@ div.sign-in, div.sign-up {
     font-size: 1rem;
   }
 
-  
+
 }
 
 .sign-in {
@@ -781,14 +788,14 @@ small.clickLgnErr {
   font-size: 100%;
   color: red;
   margin-top: -60px;
-  animation: blinker 0.5s linear infinite;  
+  animation: blinker 0.5s linear infinite;
 }
 
 small.clickRegErr {
   font-size: 100%;
   color: red;
   margin-top: -40px;
-  animation: blinker 0.5s linear infinite;  
+  animation: blinker 0.5s linear infinite;
 }
 
 @keyframes blinker {

@@ -6,8 +6,8 @@
         <v-data-table
           :headers="headers"
           :items="desserts"
-          class="elevation-1"        
-          :options.sync="pagination"        
+          class="elevation-1"
+          :options.sync="pagination"
           :footer-props="{itemsPerPageText: '每頁的資料筆數'}"
         >
           <template v-slot:top>
@@ -15,7 +15,7 @@
               <v-toolbar-title>試劑資料</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="800px" content-class="add_modalbox">
+              <v-dialog v-model="dialog" max-width="800px" :content-class="temp_css">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon left dark>mdi-table-plus</v-icon>
@@ -39,7 +39,7 @@
                             :readonly="formTitle === '編輯資料'"
                             @focus="fieldFocus"
                           ></v-text-field>
-                          <small class="msgErr" v-text= "IDErrMsg"></small>  
+                          <small class="msgErr" v-text= "IDErrMsg"></small>
                         </v-col>
 
                         <v-col cols="12" md="4">
@@ -49,8 +49,8 @@
                             prepend-icon="mdi-hospital-box-outline"
                             @focus="fieldFocus"
                           ></v-text-field>
-                          <small class="msgErr" v-text= "nameErrMsg"></small>   
-                        </v-col>                                            
+                          <small class="msgErr" v-text= "nameErrMsg"></small>
+                        </v-col>
                       </v-row>
 
                       <!-- 第2列-->
@@ -58,21 +58,21 @@
                         <v-col cols="12" md="2">
                           <v-select
                             :items="['盒', '包', '袋', '瓶', '個', '條']"
-                            label="入庫單位"                               
+                            label="入庫單位"
                             prepend-icon="mdi-tray-plus"
-                            v-model="editedItem.reag_In_unit" 
+                            v-model="editedItem.reag_In_unit"
                             @focus="fieldFocus"
                           ></v-select>
                         </v-col>
                         <v-col cols="12" md="2">
                           <v-select
                             :items="['盒', '包', '袋', '瓶', '個', '條']"
-                            label="出庫單位"                               
+                            label="出庫單位"
                             prepend-icon="mdi-tray-minus"
-                            v-model="editedItem.reag_Out_unit" 
+                            v-model="editedItem.reag_Out_unit"
                             @focus="fieldFocus"
                           ></v-select>
-                        </v-col>              
+                        </v-col>
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model="editedItem.reag_scale"
@@ -80,18 +80,18 @@
                             prepend-icon="mdi-scale"
                             @focus="fieldFocus"
                           ></v-text-field>
-                          <small class="msgErr" v-text= "scaleErrMsg"></small> 
+                          <small class="msgErr" v-text= "scaleErrMsg"></small>
                         </v-col>
-                        
+
                         <v-col cols="12" md="5">
                           <v-menu
                             v-model="fromDateMenu"
                             :close-on-content-click="false"
                             :nudge-right="40"
-                            
+
                             transition="scale-transition"
                             offset-y
-                            
+
                             max-width="290px"
                             min-width="290px"
                           >
@@ -113,12 +113,12 @@
                               no-title
                               @input="fromDateMenu = false"
                             ></v-date-picker>
-                          </v-menu>                       
-                        </v-col>             
+                          </v-menu>
+                        </v-col>
                       </v-row>
 
                       <!-- 第3列-->
-                      <v-row>                   
+                      <v-row>
                         <v-col cols="12" md="2">
                           <v-text-field
                             v-model="editedItem.reag_stock"
@@ -127,25 +127,25 @@
                             @focus="fieldFocus"
                           ></v-text-field>
                           <small class="msgErr" v-text= "nameErrMsg"></small>
-                        </v-col>                        
+                        </v-col>
                         <v-col cols="12" md="4">
                           <v-select
                             :items="['室溫','2~8度C','-20度C']"
-                            label="保存溫度"                               
+                            label="保存溫度"
                             prepend-icon="mdi-temperature-celsius"
-                            v-model="editedItem.reag_temp" 
+                            v-model="editedItem.reag_temp"
                             @focus="fieldFocus"
                           ></v-select>
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-select
                             :items="suppliers"
-                            label="供應商"                               
+                            label="供應商"
                             prepend-icon="mdi-home-city-outline"
-                            v-model="editedItem.reag_supplier" 
+                            v-model="editedItem.reag_supplier"
                             @focus="fieldFocus"
                           ></v-select>
-                        </v-col>                                              
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -192,7 +192,7 @@
     </v-row>
 
     <v-row align="center" justify="space-around" v-else>
-        <v-dialog 
+        <v-dialog
           v-model="permDialog"
           transition="dialog-bottom-transition"
           max-width="500"
@@ -201,8 +201,8 @@
             <v-toolbar
               color="primary"
               dark
-            >錯誤訊息!</v-toolbar>          
-            <v-card-text> 
+            >錯誤訊息!</v-toolbar>
+            <v-card-text>
               <div class="text-h4 pa-12">使用這項功能, 請通知管理人員...</div>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -266,7 +266,7 @@ export default {
     stockErrMsg: '',
 
     //資料表頭
-    headers: [      
+    headers: [
       //{ text: 'ID', sortable: false, value: 'id', width: '10%', align: 'start'},
       { text: '資材碼', sortable: true, value: 'reag_id', width: '10%' },
       { text: '品名', sortable: false, value: 'reag_name', width: '10%' },
@@ -277,7 +277,7 @@ export default {
       { text: '安全存量', sortable: false, value: 'reag_stock', width: '10%' },
       { text: '保存溫度', sortable: false, value: 'reag_temp', width: '10%' },
       { text: '供應商', sortable: true, value: 'reag_supplier', width: '10%' },
-      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },        
+      { text: 'Actions', sortable: false, value: 'actions', width: '10%' },
     ],
 
     desserts: [],
@@ -297,7 +297,7 @@ export default {
       reag_period: '',
       reag_stock: '0',
       reag_temp: '',
-      reag_supplier: '',      
+      reag_supplier: '',
     },
     defaultItem: {
       reag_id: '',
@@ -308,7 +308,7 @@ export default {
       reag_period: '',
       reag_stock: '0',
       reag_temp: '',
-      reag_supplier: '',      
+      reag_supplier: '',
     },
 
     load_SingleTable_ok: false,
@@ -329,7 +329,7 @@ export default {
         b = b - 1911;
         yy_value = b.toString()
         this.editedItem.reag_period = yy_value + '/' + mmdd_value;
-      }      
+      }
       return this.fromDateVal;
     },
 
@@ -356,7 +356,7 @@ export default {
       val || this.closeDelete()
     },
 
-    'editedItem.reag_id': function () {  
+    'editedItem.reag_id': function () {
       let isEmpIDRule = /^\w{1,9}$/;
 
       this.IDErrMsg = '';
@@ -368,7 +368,7 @@ export default {
         this.IDErrMsg = '';
       } else {
         this.IDErrMsg = '資料格式錯誤!';
-      }      
+      }
     },
 
     'editedItem.reag_name': function () {
@@ -383,7 +383,7 @@ export default {
         this.nameErrMsg = '';
       } else {
         this.nameErrMsg = '資料格式錯誤!';
-      }      
+      }
     },
 
     'editedItem.reag_scale': function () {
@@ -397,7 +397,7 @@ export default {
         this.scaleErrMsg = '';
       } else {
         this.scaleErrMsg = '資料格式錯誤!';
-      }      
+      }
     },
 
     'editedItem.reag_stock': function () {
@@ -411,7 +411,7 @@ export default {
         this.stockErrMsg = '';
       } else {
         this.stockErrMsg = '資料格式錯誤!';
-      }      
+      }
     },
 
     load_2thTable_ok(val) {
@@ -451,13 +451,13 @@ export default {
       this.listReagent();
     },
 
-    listReagent () { 
+    listReagent () {
       const path = '/listReagents';
       console.log("Axios get data...")
       axios.get(path)
       .then((res) => {
         this.temp_desserts = res.data.outputs;
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_SingleTable_ok=true;
       })
       .catch((error) => {
@@ -466,22 +466,23 @@ export default {
       });
     },
 
-    listSuppliers() { 
+    listSuppliers() {
       const path = '/listSuppliers';
       console.log("listSuppliers, Axios get data...")
       axios.get(path)
       .then((res) => {
         //this.temp_suppliers = res.data.outputs;
-        this.temp_suppliers = res.data.outputs.map(item => Object.values(item)[2]); //從object中copy value至array
+        console.log("===GET ok, total records, OBJECTS:", res.data.outputs);
+        this.temp_suppliers = res.data.outputs.map(item => Object.values(item)[3]); //從object中copy value至array
 
-        console.log("GET ok, total records:", res.data.outputs.length);        
+        console.log("GET ok, total records:", res.data.outputs.length);
         this.load_2thTable_ok=true;
       })
       .catch((error) => {
         console.error(error);
         this.load_2thTable_ok=false;
       });
-    },    
+    },
 
     fieldFocus() {
       this.tosterOK=false;
@@ -545,7 +546,7 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem);
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }      
+        }
       })
       .catch(err => {
         console.error(err)
@@ -575,7 +576,7 @@ export default {
       console.log("---click update_reagent data---", object);
 
       const path='/updateReagent';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("update reagent data status: ", res.data.status)
@@ -584,15 +585,15 @@ export default {
           this.editedItem = Object.assign({}, this.defaultItem)
         } else {
           this.tosterOK = true;   //true: 顯示錯誤訊息畫面
-        }        
+        }
       })
       .catch(err => {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
         //this.registerOK= false;
       });
-      
-      //this.signUp=false;  //註冊OK, 則轉為登入畫面      
+
+      //this.signUp=false;  //註冊OK, 則轉為登入畫面
     },
 
     createReagent(object) {  //新增 reagent後端table資料
@@ -600,11 +601,11 @@ export default {
 
       //const defaultPassword='a12345678';
       const path='/createReagent';
-      let payload = Object.assign({}, object);      
+      let payload = Object.assign({}, object);
       axios.post(path, payload)
       .then(res => {
         console.log("save reagent data status: ", res.data.status)
-        
+
         if (res.data.status) {
           this.tosterOK = false;  //false: 關閉錯誤訊息畫面
           this.editedItem = Object.assign({}, this.defaultItem)
@@ -616,13 +617,13 @@ export default {
         console.error(err);
         this.tosterOK = true;   //true: 顯示錯誤訊息畫面
       });
-    },    
+    },
 
     permCloseFun () {
       this.permDialog = false
       console.log("press permission Close Button...");
-      this.$router.push('/navbar'); 
-    },    
+      this.$router.push('/navbar');
+    },
   },
 }
 </script>
@@ -638,7 +639,7 @@ div.v-toolbar__title {
 }
 
 ::v-deep .v-data-table-header {
-  background-color: #7DA79D;  
+  background-color: #7DA79D;
 }
 
 ::v-deep .v-data-table-header th {

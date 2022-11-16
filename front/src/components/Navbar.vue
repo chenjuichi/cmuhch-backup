@@ -21,21 +21,32 @@
           <b-dropdown-item :to="navbar.router3">
             <b-avatar variant="success" :icon="navbar.icon3" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
             {{ navbar.name3 }}
-            <v-badge color="green" variant="light" :content="navBar_in_drafTags" v-show="navbar.id==2 && navBar_in_drafTags!=0"></v-badge>            
+            <v-badge color="green" variant="light" :content="navBar_in_drafTags" v-show="navbar.id==2 && navBar_in_drafTags!=0"></v-badge>
           </b-dropdown-item>
 
-          <div v-show="navbar.id==1"> 
+          <div v-show="navbar.id==1">
+            <!--儲位-->
+            <!--
             <b-dropdown-item :to="navbar.router4">
               <b-avatar variant="success" :icon="navbar.icon4" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
               {{ navbar.name4 }}
             </b-dropdown-item>
+            -->
+            <b-dropdown id="dropdown-1" dropright variant="#FFFFFF" class="ml-3" style="color: #1976d2;">
+              <template #button-content>
+                <b-avatar variant="success" :icon="navbar.icon4" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt; color: #1976d2;"></b-avatar>
+                {{ navbar.name4 }}
+              </template>
+              <b-dropdown-item :to="navbar.router4">{{ navbar.name4 }}</b-dropdown-item>
+              <b-dropdown-item to="/gridsForLed">儲位燈條資料設定</b-dropdown-item>
+            </b-dropdown>
 
             <!--供應商-->
             <!--
             <b-dropdown-item :to="navbar.router5">
               <b-avatar variant="success" :icon="navbar.icon5" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
               {{ navbar.name5 }}
-            </b-dropdown-item>           
+            </b-dropdown-item>
             -->
             <b-dropdown id="dropdown-2" dropright variant="#FFFFFF" class="ml-3" style="color: #1976d2;">
               <template #button-content>
@@ -44,12 +55,18 @@
               </template>
               <b-dropdown-item :to="navbar.router5">{{ navbar.name5 }}</b-dropdown-item>
               <b-dropdown-item to="/supAndPrd">主要產品類別資料</b-dropdown-item>
-            </b-dropdown>           
-            
+            </b-dropdown>
+
             <b-dropdown-item :to="navbar.router6">
               <b-avatar variant="success" :icon="navbar.icon6" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
               {{ navbar.name6 }}
             </b-dropdown-item>
+            <!--
+            <b-dropdown-item :to="navbar.router7">
+              <b-avatar variant="success" :icon="navbar.icon7" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
+              {{ navbar.name7 }}
+            </b-dropdown-item>
+            -->
           </div>
         </b-nav-item-dropdown>
       </div>
@@ -58,11 +75,11 @@
           <em>{{ currentUser.name }}</em>
       <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
-        
-        
+
+
         <!--<b-dropdown-item href="#">Profile</b-dropdown-item>-->
-        <b-dropdown-item href="#" @click="logout">          
-          
+        <b-dropdown-item href="#" @click="logout">
+
             <div>
               <!--<b-icon-arrow-up></b-icon-arrow-up>-->
               <!--<p class="h5 mb-2">-->
@@ -72,30 +89,30 @@
                 登出
               <!--</p>-->
             </div>
-                 
+
         </b-dropdown-item>
 
-        <b-dropdown-item href="#" @click="changePassword">          
-          
+        <b-dropdown-item href="#" @click="changePassword">
+
             <div>
                 <b-avatar variant="primary" icon="pencil-square" style="width: 1.5rem; height: 1.5rem; margin-bottom: 3pt;"></b-avatar>
                 修改密碼
             </div>
-                  
-        </b-dropdown-item>        
-      </b-nav-item-dropdown>      
+
+        </b-dropdown-item>
+      </b-nav-item-dropdown>
     </b-navbar-nav>
   </b-navbar>
 
   <!--<ChangePassword :dialog_data="openDialog" @changePassword="onModifyPassword"></ChangePassword>-->
   <ChangePassword :dialog_data="openDialog"></ChangePassword>
-  <div 
+  <div
     :style="inlineStyle"
-           
+
   ></div>
 </v-app>
 </template>
- 
+
 <script>
 import axios from 'axios';
 
@@ -108,7 +125,7 @@ import ChangePassword from '../components/changePassword.vue';
 
 // Note: Vue automatically prefixes the directive name with 'v-'
 //import { VBHover } from 'bootstrap-vue'
-import { VBVisible } from 'bootstrap-vue' 
+import { VBVisible } from 'bootstrap-vue'
 
 import {SYSTEM,} from '../mixin/constant'
 
@@ -117,8 +134,8 @@ export default {
 
   directives: {
     //'b-hover': VBHover
-    'b-visible': VBVisible   
-  }, 
+    'b-visible': VBVisible
+  },
 
   mixins: [Common],
 
@@ -134,7 +151,7 @@ computed: {
       height: `100vh`,
       width: `100vw`,
       top: `16vh`,
-      //backgroundPosition: `center`     
+      //backgroundPosition: `center`
     }
   }
 },
@@ -154,7 +171,7 @@ computed: {
     this.initAxios();
 
   },
-  
+
   mounted() {
     //this.navBar_in_drafTags=this.$route.params.in_drafTags;
     //if (typeof(this.navBar_in_drafTags) === 'undefined') {
@@ -162,7 +179,7 @@ computed: {
     let temp=localStorage.getItem("totalTags")
     if(typeof(temp)=='undefined' || temp==null)
         this.navBar_in_drafTags=0;
-    else 
+    else
       this.navBar_in_drafTags=parseInt(temp);
 
     //if ("totalTags" in localStorage) {
@@ -173,22 +190,34 @@ computed: {
     //  localStorage.setItem("totalTags", 0);
     //}
     console.log("navbar, totalTags: ", this.navBar_in_drafTags);
-    //this.navBar_in_drafTags=2;  
-    
+    //this.navBar_in_drafTags=2;
+
     //====
     this.$root.$on('bv::dropdown::show', bvEvent => {
-      if(bvEvent.componentId === 'dropdown-2') {
+      if (bvEvent.componentId === 'dropdown-1') {
+        this.isDropdown1Visible = true;
+      }
+
+      if (bvEvent.componentId === 'dropdown-2') {
         this.isDropdown2Visible = true;
       }
-      })
+    })
+
     this.$root.$on('bv::dropdown::hide', bvEvent => {
-        if(bvEvent.componentId === 'dropdown-2') {
-          this.isDropdown2Visible = false;
-        }
-        if(this.isDropdown2Visible) {
-          bvEvent.preventDefault()
-        }
-        })
+      if (bvEvent.componentId === 'dropdown-1') {
+        this.isDropdown1Visible = false;
+      }
+      if (this.isDropdown1Visible) {
+        bvEvent.preventDefault()
+      }
+
+      if (bvEvent.componentId === 'dropdown-2') {
+        this.isDropdown2Visible = false;
+      }
+      if (this.isDropdown2Visible) {
+        bvEvent.preventDefault()
+      }
+    })
 
     //===
 
@@ -200,10 +229,11 @@ computed: {
       openDialog: false,
       open: false,
       navBar_in_drafTags: 0,
-      
+
       navBar_newTags: 0,
 
       subMenu: false,
+      isDropdown1Visible: false,
       isDropdown2Visible: false,
 
       home_url: logo,
@@ -211,31 +241,32 @@ computed: {
       currentUser: {},
       navbars: [
         { id: 1,
-          text: "基本資料維護", 
-          icon1: "person-plus", name1: "人員資料", router1: "/emp", 
+          text: "基本資料維護",
+          icon1: "person-plus", name1: "人員資料", router1: "/emp",
           icon2: "person-lines-fill", name2: "人員權限資料", router2: "/perm",
           icon3: "clipboard-data", name3: "試劑資料", router3: "/reag",
           icon4: "bookshelf", name4: "儲位設定", router4: "/grid",
           icon5: "briefcase", name5: "供應商資料", router5: "/sup",
-          icon6: "people", name6: "組別資料", router6: "/dep"
+          icon6: "people", name6: "組別資料", router6: "/dep",
+          //icon7: "people", name7: "Led資料設定", router7: "/gridsForLed",
         },
         { id: 2,
-          text: "入庫管理", 
-          icon1: "bookmark-plus", name1: "入庫標籤資料", router1: "/inTag", 
+          text: "入庫管理",
+          icon1: "bookmark-plus", name1: "入庫標籤資料", router1: "/inTag",
           icon2: "bag-plus", name2: "入庫標籤列印", router2: "/inTagPrint",
-          icon3: "cart-plus", name3: "入庫作業", router3: "/stockIn",          
+          icon3: "cart-plus", name3: "入庫作業", router3: "/stockIn",
         },
         { id: 3,
-          text: "出庫管理", 
-          icon1: "bookmark-dash", name1: "出庫標籤資料", router1: "/outTag", 
+          text: "出庫管理",
+          icon1: "bookmark-dash", name1: "出庫標籤資料", router1: "/outTag",
           icon2: "bag-dash", name2: "出庫標籤列印", router2: "/outTagPrint",
-          icon3: "cart-dash", name3: "出庫作業", router3: "/app3",          
+          icon3: "cart-dash", name3: "出庫作業", router3: "/app3",
         },
         { id: 4,
-          text: "物料盤點", 
-          icon1: "book", name1: "領用記錄查詢", router1: "/reqRec", 
+          text: "物料盤點",
+          icon1: "book", name1: "領用記錄查詢", router1: "/reqRec",
           icon2: "calendar2-check", name2: "庫存紀錄查詢", router2: "/stockRec",
-          icon3: "upc-scan", name3: "盤點作業", router3: "/invent",          
+          icon3: "upc-scan", name3: "盤點作業", router3: "/invent",
         },
       ],
     };
@@ -266,7 +297,7 @@ computed: {
       this.updateSetting();
       let isAuthenticated=false;
       this.setAuthenticated(isAuthenticated);
-      this.removeLoginUser();      
+      this.removeLoginUser();
       if (this.$route.path != '/') {
         this.$router.push('/');
       }
@@ -289,7 +320,7 @@ computed: {
       .catch(err => {
           console.error(err);
       });
-    },    
+    },
 
     removeLoginUser() {
       localStorage.removeItem('loginedUser');
@@ -305,9 +336,9 @@ computed: {
   },
 }
 </script>
- 
+
 <style scoped lang="scss">
-  @media (min-width: 992px) { 
+  @media (min-width: 992px) {
     .navbar.custom-nav{
       padding-top:16px;
       padding-bottom:16px;
